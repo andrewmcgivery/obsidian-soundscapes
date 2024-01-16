@@ -1,0 +1,26 @@
+.soundscapesroot {
+	position: relative;
+
+	&:hover {
+		.soundscapesroot-player {
+			opacity: 1;
+		}
+	}
+
+	.soundscapesroot-player {
+		position: absolute;
+		left: 40px;
+		bottom: 110%;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.5s;
+	}
+
+	button {
+		cursor: pointer;
+	}
+
+	.soundscapesroot-nowplaying {
+		margin: 0 12px;
+	}
+}
