@@ -6,5 +6,6 @@
 	"description": "Adds a music/ambiance (E.g. lofi, white noise) player to the status bar to help with concentration.",
 	"author": "Andrew McGivery",
 	"authorUrl": "https://github.com/andrewmcgivery",
+	"fundingUrl": "https://www.buymeacoffee.com/andrewmcgivery",
 	"isDesktopOnly": true
 }

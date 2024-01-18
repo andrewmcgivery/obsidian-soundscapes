@@ -41,3 +41,7 @@ This plugin makes use of the Youtube IFrame API and includes that script as a re
 ## Reporting Issues
 
 If you run into any issues with this plugin, please [open an issue](https://github.com/andrewmcgivery/obsidian-soundscapes/issues/new) and include as much detail as possible, including screenshots.
+
+# Leave a Tip
+
+<a href="https://www.buymeacoffee.com/andrewmcgivery" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
