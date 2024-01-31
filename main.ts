@@ -1,5 +1,11 @@
-import { App, Plugin, PluginSettingTab, Setting, getIcon } from "obsidian";
-import debounce from "./utils/debounce";
+import {
+	App,
+	Plugin,
+	PluginSettingTab,
+	Setting,
+	debounce,
+	setIcon,
+} from "obsidian";
 
 interface Soundscape {
 	id: string;
@@ -147,7 +153,7 @@ export default class SoundscapesPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		this.debouncedSaveSettings = debounce(this.saveSettings, 500);
+		this.debouncedSaveSettings = debounce(this.saveSettings, 500, true);
 
 		this.statusBarItem = this.addStatusBarItem();
 		this.statusBarItem.addClass("soundscapesroot");
@@ -234,14 +240,8 @@ export default class SoundscapesPlugin extends Plugin {
 	 * Create all the UI elements
 	 */
 	createControls() {
-		const playIcon = getIcon("play") as Node;
-		const pauseIcon = getIcon("pause") as Node;
-		const volumeLowIcon = getIcon("volume-1") as Node;
-		const volumeHighIcon = getIcon("volume-2") as Node;
-		const volumeMuteIcon = getIcon("volume-x") as Node;
-
 		this.playButton = this.statusBarItem.createEl("button", {});
-		this.playButton.appendChild(playIcon);
+		setIcon(this.playButton, "play");
 		this.playButton.onclick = () => {
 			// When it's a live video, attempt to jump to the "live" portion
 			if (SOUNDSCAPES[this.settings.soundscape].isLiveVideo) {
@@ -251,7 +251,7 @@ export default class SoundscapesPlugin extends Plugin {
 		};
 
 		this.pauseButton = this.statusBarItem.createEl("button", {});
-		this.pauseButton.appendChild(pauseIcon);
+		setIcon(this.pauseButton, "pause");
 		this.pauseButton.onclick = () => this.player.pauseVideo();
 
 		this.nowPlaying = this.statusBarItem.createEl("div", {
@@ -265,17 +265,17 @@ export default class SoundscapesPlugin extends Plugin {
 		this.volumeMutedIcon = volumeIcons.createEl("div", {
 			cls: "soundscapesroot-volumeIcons-iconmuted",
 		});
-		this.volumeMutedIcon.appendChild(volumeMuteIcon);
+		setIcon(this.volumeMutedIcon, "volume-x");
 
 		this.volumeLowIcon = volumeIcons.createEl("div", {
 			cls: "soundscapesroot-volumeIcons-iconlow",
 		});
-		this.volumeLowIcon.appendChild(volumeLowIcon);
+		setIcon(this.volumeLowIcon, "volume-1");
 
 		this.volumeHighIcon = volumeIcons.createEl("div", {
 			cls: "soundscapesroot-volumeIcons-iconhigh",
 		});
-		this.volumeHighIcon.appendChild(volumeHighIcon);
+		setIcon(this.volumeHighIcon, "volume-2");
 
 		this.volumeSlider = this.statusBarItem.createEl("input", {
 			attr: {
@@ -346,6 +346,7 @@ export default class SoundscapesPlugin extends Plugin {
 	 * Save data to disk, stored in data.json in plugin folder
 	 */
 	async saveSettings() {
+		console.log("saving...");
 		await this.saveData(this.settings);
 	}
 }
