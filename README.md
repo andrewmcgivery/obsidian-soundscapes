@@ -8,7 +8,7 @@ A plugin for Obsidian.MD that adds a music/ambiance player to the status bar to 
 
 ## How to Install
 
-Plugin will be added to official repository shortly.
+Plugin can be [installed via the official community plugins](https://obsidian.md/plugins?id=soundscapes).
 
 ## How to Use
 
