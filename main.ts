@@ -134,6 +134,14 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		youtubeId: "sA0qrPOMy2Y",
 		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
+	skycotl: {
+		id: "skycotl",
+		name: "Sky: Children of the Light",
+		nowPlayingText: "Sky: Children of the Light",
+		isLiveVideo: false,
+		youtubeId: "87etrUp83Yc",
+		type: SOUNDSCAPE_TYPE.STANDARD,
+	},
 };
 
 // Documentation: https://developers.google.com/youtube/iframe_api_reference
