@@ -140,6 +140,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Sky: Children of the Light",
 		isLiveVideo: false,
 		youtubeId: "87etrUp83Yc",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 };
 
