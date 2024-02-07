@@ -23,6 +23,13 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		isLiveVideo: true,
 		youtubeId: "jfKfPfyJRdk",
 	},
+	yakuzabar: {
+		id: "yakuzabar",
+		name: "Yakuza/Like a Dragon bar ambience",
+		nowPlayingText: "Yakuza bar ambience",
+		isLiveVideo: true,
+		youtubeId: "Q0GtyZbHJDM",
+	},
 	spa: {
 		id: "spa",
 		name: "Spa atmosphere",
