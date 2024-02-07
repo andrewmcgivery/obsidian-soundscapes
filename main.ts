@@ -23,13 +23,6 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		isLiveVideo: true,
 		youtubeId: "jfKfPfyJRdk",
 	},
-	yakuzabar: {
-		id: "yakuzabar",
-		name: "Yakuza/Like a Dragon bar ambience",
-		nowPlayingText: "Yakuza bar ambience",
-		isLiveVideo: true,
-		youtubeId: "Q0GtyZbHJDM",
-	},
 	spa: {
 		id: "spa",
 		name: "Spa atmosphere",
@@ -92,6 +85,13 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Animal Crossing New Horizons",
 		isLiveVideo: false,
 		youtubeId: "zru-TLye9jo",
+	},
+	yakuzabar: {
+		id: "yakuzabar",
+		name: "Yakuza/Like a Dragon bar ambience",
+		nowPlayingText: "Yakuza bar ambience",
+		isLiveVideo: false,
+		youtubeId: "Q0GtyZbHJDM",
 	},
 	nintendo: {
 		id: "nintendo",
