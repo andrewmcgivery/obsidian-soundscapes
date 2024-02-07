@@ -38,7 +38,7 @@ This plugin makes use of the Youtube IFrame API and includes that script as a re
 -   [Animal Crossing New Horizons](https://www.youtube.com/watch?v=zru-TLye9jo)
 -   [Calm Nintendo music](https://www.youtube.com/watch?v=sA0qrPOMy2Y)
 -   [Yakuza/Like a Dragon bar ambience](https://www.youtube.com/watch?v=Q0GtyZbHJDM)
--   [Sky: Children of the Light soundtrack](https://www.youtube.com/watch?v=6GmL_DKR4fo)
+-   [Sky: Children of the Light soundtrack](https://www.youtube.com/watch?v=87etrUp83Yc)
 
 ## Reporting Issues
 
