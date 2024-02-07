@@ -25,6 +25,7 @@
 	},
 	"dependencies": {
 		"esbuild-copy-static-files": "^0.1.0",
-		"esbuild-sass-plugin": "^2.16.0"
+		"esbuild-sass-plugin": "^2.16.0",
+		"uuid": "^9.0.1"
 	}
 }

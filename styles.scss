@@ -20,7 +20,23 @@
 		cursor: pointer;
 	}
 
+	.soundscapesroot-previousbutton {
+		margin-right: 4px;
+	}
+
+	.soundscapesroot-nextbutton {
+		margin-left: 4px;
+	}
+
 	.soundscapesroot-nowplaying {
 		margin: 0 12px;
 	}
+}
+
+input.soundscapes-validation-error {
+	border-color: #fb464c;
+}
+
+button.soundscapes-button-disabled {
+	opacity: 0.5;
 }
