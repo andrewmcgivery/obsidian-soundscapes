@@ -5,7 +5,23 @@ import {
 	Setting,
 	debounce,
 	setIcon,
+	requestUrl,
+	Notice,
 } from "obsidian";
+import { v4 as uuidv4 } from "uuid";
+import EditCustomSoundscapeModal from "src/EditCustomSoundscapeModal/EditCustomSoundscapeModal";
+import ConfirmModal from "src/ConfirmModal/ConfirmModal";
+
+export interface CustomSoundscape {
+	id: string;
+	name: string;
+	tracks: CustomSoundscapeTrack[];
+}
+
+export interface CustomSoundscapeTrack {
+	name: string;
+	id: string;
+}
 
 interface Soundscape {
 	id: string;
@@ -13,6 +29,12 @@ interface Soundscape {
 	nowPlayingText: string;
 	isLiveVideo: boolean;
 	youtubeId: string;
+	type: SOUNDSCAPE_TYPE;
+}
+
+enum SOUNDSCAPE_TYPE {
+	STANDARD = "STANDARD",
+	CUSTOM = "CUSTOM",
 }
 
 const SOUNDSCAPES: Record<string, Soundscape> = {
@@ -22,6 +44,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Lofi beats",
 		isLiveVideo: true,
 		youtubeId: "jfKfPfyJRdk",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	spa: {
 		id: "spa",
@@ -29,6 +52,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Spa atmosphere",
 		isLiveVideo: true,
 		youtubeId: "luxiL4SQVVE",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	sims: {
 		id: "sims",
@@ -36,6 +60,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "The Sims complete soundtrack",
 		isLiveVideo: false,
 		youtubeId: "wKnkQdsITUE",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	thunder: {
 		id: "thunder",
@@ -43,6 +68,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Thunderstorm",
 		isLiveVideo: false,
 		youtubeId: "nDq6TstdEi8",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	fire: {
 		id: "fire",
@@ -50,6 +76,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Cozy fireplace",
 		isLiveVideo: false,
 		youtubeId: "rCYzRXLWcIg",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	birds: {
 		id: "birds",
@@ -57,6 +84,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Birds chirping",
 		isLiveVideo: false,
 		youtubeId: "mFjU4JuJgnM",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	ocean: {
 		id: "ocean",
@@ -64,6 +92,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Ocean waves",
 		isLiveVideo: false,
 		youtubeId: "bn9F19Hi1Lk",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	jazz: {
 		id: "jazz",
@@ -71,6 +100,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Relaxing jazz",
 		isLiveVideo: false,
 		youtubeId: "tNvh2w8lTes",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	coffeeshop: {
 		id: "coffeeshop",
@@ -78,6 +108,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Coffee shop ambience",
 		isLiveVideo: false,
 		youtubeId: "uiMXGIG_DQo",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	animalcrossing: {
 		id: "animalcrossing",
@@ -85,6 +116,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Animal Crossing New Horizons",
 		isLiveVideo: false,
 		youtubeId: "zru-TLye9jo",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	yakuzabar: {
 		id: "yakuzabar",
@@ -92,6 +124,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Yakuza bar ambience",
 		isLiveVideo: false,
 		youtubeId: "Q0GtyZbHJDM",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	nintendo: {
 		id: "nintendo",
@@ -99,6 +132,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		nowPlayingText: "Calm Nintendo music",
 		isLiveVideo: false,
 		youtubeId: "sA0qrPOMy2Y",
+		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	skycotl: {
 		id: "skycotl",
@@ -116,7 +150,7 @@ interface Player {
 	seekTo(position: number): void;
 	getDuration(): number;
 	setVolume(volume: Number): void;
-	loadVideoById(options: { videoId: String }): void;
+	loadVideoById(options: { videoId: String | undefined }): void;
 }
 
 // Documentation: https://developers.google.com/youtube/iframe_api_reference
@@ -133,12 +167,14 @@ interface SoundscapesPluginSettings {
 	soundscape: string;
 	volume: number;
 	autoplay: boolean;
+	customSoundscapes: CustomSoundscape[];
 }
 
 const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
 	soundscape: "lofi",
 	volume: 25,
 	autoplay: false,
+	customSoundscapes: [],
 };
 
 /**
@@ -158,16 +194,22 @@ export default class SoundscapesPlugin extends Plugin {
 	statusBarItem: HTMLElement;
 	playButton: HTMLButtonElement;
 	pauseButton: HTMLButtonElement;
+	nextButton: HTMLButtonElement;
+	previousButton: HTMLButtonElement;
 	nowPlaying: HTMLDivElement;
 	volumeMutedIcon: HTMLDivElement;
 	volumeLowIcon: HTMLDivElement;
 	volumeHighIcon: HTMLDivElement;
 	volumeSlider: HTMLInputElement;
 	debouncedSaveSettings: Function;
+	soundscapeType: SOUNDSCAPE_TYPE;
+	currentTrackIndex: number = 0;
 
 	async onload() {
 		await this.loadSettings();
 		this.debouncedSaveSettings = debounce(this.saveSettings, 500, true);
+
+		this.versionCheck();
 
 		this.statusBarItem = this.addStatusBarItem();
 		this.statusBarItem.addClass("soundscapesroot");
@@ -178,6 +220,40 @@ export default class SoundscapesPlugin extends Plugin {
 	}
 
 	onunload() {}
+
+	/**
+	 * Check the local plugin version against github. If there is a new version, notify the user.
+	 */
+	versionCheck() {
+		requestUrl(
+			"https://raw.githubusercontent.com/andrewmcgivery/obsidian-soundscapes/main/package.json"
+		).then(async (res) => {
+			if (res.status === 200) {
+				const response = await res.json;
+				const localVersion = process.env.PLUGIN_VERSION;
+				const remoteVersion = response.version;
+
+				if (localVersion !== remoteVersion) {
+					new Notice(
+						"There is an update available for the Soundscapes plugin. Please update to to the latest version to get the latest features!",
+						0
+					);
+				}
+			}
+		});
+	}
+
+	/**
+	 * Because we only have the id of the current soundscape, we need a helper function to get the soundscape itself when it's a custom one
+	 * @returns
+	 */
+	getCurrentCustomSoundscape() {
+		return this.settings.customSoundscapes.find(
+			(soundscape) =>
+				soundscape.id ===
+				this.settings.soundscape.split(`${SOUNDSCAPE_TYPE.CUSTOM}_`)[1]
+		);
+	}
 
 	/**
 	 * Create the Youtube player
@@ -232,6 +308,17 @@ export default class SoundscapesPlugin extends Plugin {
 	 * Update the UI when the state of the video changes
 	 */
 	onStateChange({ data: state }: { data: PLAYER_STATE }) {
+		const customSoundscape = this.getCurrentCustomSoundscape();
+
+		// Next and Previous buttons only apply when we have a playlist-type soundscape
+		if (this.soundscapeType === SOUNDSCAPE_TYPE.STANDARD) {
+			this.previousButton.hide();
+			this.nextButton.hide();
+		} else {
+			this.previousButton.show();
+			this.nextButton.show();
+		}
+
 		switch (state) {
 			case PLAYER_STATE.UNSTARTED:
 				this.playButton.show();
@@ -246,7 +333,17 @@ export default class SoundscapesPlugin extends Plugin {
 				this.pauseButton.hide();
 				break;
 			case PLAYER_STATE.ENDED:
-				this.onSoundscapeChange(); // Loop videos once they end
+				// When it's a playlist-type soundscape, go to the next track, or wrap back around to the first track if at the end
+				if (this.soundscapeType === SOUNDSCAPE_TYPE.CUSTOM) {
+					if (customSoundscape?.tracks[this.currentTrackIndex + 1]) {
+						this.currentTrackIndex++;
+					} else {
+						this.currentTrackIndex = 0;
+					}
+				}
+				// For Standard, Loop videos once they end
+				// For Custom, we'll go to the next track (per above logic)
+				this.onSoundscapeChange();
 		}
 	}
 
@@ -254,11 +351,30 @@ export default class SoundscapesPlugin extends Plugin {
 	 * Create all the UI elements
 	 */
 	createControls() {
+		this.previousButton = this.statusBarItem.createEl("button", {
+			cls: "soundscapesroot-previousbutton",
+		});
+		setIcon(this.previousButton, "skip-back");
+		this.previousButton.onclick = () => {
+			const customSoundscape = this.getCurrentCustomSoundscape();
+
+			if (this.currentTrackIndex === 0) {
+				this.currentTrackIndex =
+					(customSoundscape?.tracks.length || 1) - 1;
+			} else {
+				this.currentTrackIndex--;
+			}
+			this.onSoundscapeChange();
+		};
+
 		this.playButton = this.statusBarItem.createEl("button", {});
 		setIcon(this.playButton, "play");
 		this.playButton.onclick = () => {
 			// When it's a live video, attempt to jump to the "live" portion
-			if (SOUNDSCAPES[this.settings.soundscape].isLiveVideo) {
+			if (
+				this.soundscapeType === SOUNDSCAPE_TYPE.STANDARD &&
+				SOUNDSCAPES[this.settings.soundscape].isLiveVideo
+			) {
 				this.player.seekTo(this.player.getDuration());
 			}
 			this.player.playVideo();
@@ -267,6 +383,21 @@ export default class SoundscapesPlugin extends Plugin {
 		this.pauseButton = this.statusBarItem.createEl("button", {});
 		setIcon(this.pauseButton, "pause");
 		this.pauseButton.onclick = () => this.player.pauseVideo();
+
+		this.nextButton = this.statusBarItem.createEl("button", {
+			cls: "soundscapesroot-nextbutton",
+		});
+		setIcon(this.nextButton, "skip-forward");
+		this.nextButton.onclick = () => {
+			const customSoundscape = this.getCurrentCustomSoundscape();
+
+			if (customSoundscape?.tracks[this.currentTrackIndex + 1]) {
+				this.currentTrackIndex++;
+			} else {
+				this.currentTrackIndex = 0;
+			}
+			this.onSoundscapeChange();
+		};
 
 		this.nowPlaying = this.statusBarItem.createEl("div", {
 			cls: "soundscapesroot-nowplaying",
@@ -337,15 +468,32 @@ export default class SoundscapesPlugin extends Plugin {
 	 * Play the selected soundscape!
 	 */
 	onSoundscapeChange() {
-		this.player.loadVideoById({
-			videoId: SOUNDSCAPES[this.settings.soundscape].youtubeId,
-		});
-		if (SOUNDSCAPES[this.settings.soundscape].isLiveVideo) {
-			this.player.seekTo(this.player.getDuration());
+		if (this.settings.soundscape.startsWith(`${SOUNDSCAPE_TYPE.CUSTOM}_`)) {
+			this.soundscapeType = SOUNDSCAPE_TYPE.CUSTOM;
+		} else {
+			this.soundscapeType = SOUNDSCAPE_TYPE.STANDARD;
 		}
-		this.nowPlaying.setText(
-			SOUNDSCAPES[this.settings.soundscape].nowPlayingText
-		);
+
+		if (this.soundscapeType === SOUNDSCAPE_TYPE.CUSTOM) {
+			const customSoundscape = this.getCurrentCustomSoundscape();
+
+			this.player.loadVideoById({
+				videoId: customSoundscape?.tracks[this.currentTrackIndex].id,
+			});
+			this.nowPlaying.setText(
+				customSoundscape?.tracks[this.currentTrackIndex].name || ""
+			);
+		} else {
+			this.player.loadVideoById({
+				videoId: SOUNDSCAPES[this.settings.soundscape].youtubeId,
+			});
+			if (SOUNDSCAPES[this.settings.soundscape].isLiveVideo) {
+				this.player.seekTo(this.player.getDuration());
+			}
+			this.nowPlaying.setText(
+				SOUNDSCAPES[this.settings.soundscape].nowPlayingText
+			);
+		}
 	}
 
 	/**
@@ -360,7 +508,6 @@ export default class SoundscapesPlugin extends Plugin {
 	 * Save data to disk, stored in data.json in plugin folder
 	 */
 	async saveSettings() {
-		console.log("saving...");
 		await this.saveData(this.settings);
 	}
 }
@@ -386,10 +533,30 @@ class SoundscapesSettingsTab extends PluginSettingTab {
 					component.addOption(soundscape.id, soundscape.name);
 				});
 
+				this.plugin.settings.customSoundscapes.forEach(
+					(customSoundscape) => {
+						if (customSoundscape.tracks.length > 0) {
+							component.addOption(
+								`${SOUNDSCAPE_TYPE.CUSTOM}_${customSoundscape.id}`,
+								customSoundscape.name
+							);
+						}
+					}
+				);
+
 				component.setValue(this.plugin.settings.soundscape);
 
 				component.onChange((value: string) => {
 					this.plugin.settings.soundscape = value;
+
+					if (
+						this.plugin.settings.soundscape.startsWith(
+							`${SOUNDSCAPE_TYPE.CUSTOM}_`
+						)
+					) {
+						this.plugin.currentTrackIndex = 0;
+					}
+
 					this.plugin.onSoundscapeChange();
 					this.plugin.saveSettings();
 					this.display();
@@ -406,5 +573,88 @@ class SoundscapesSettingsTab extends PluginSettingTab {
 					this.plugin.saveSettings();
 				});
 			});
+
+		containerEl.createEl("h2", { text: "Custom soundscapes" });
+		containerEl.createEl("p", {
+			text: "Custom soundscapes allow you to create your own playlists of youtube videos that can be selected as a soundscape.",
+		});
+
+		this.plugin.settings.customSoundscapes.forEach(
+			(customSoundscape, index) => {
+				new Setting(containerEl)
+					.setName(customSoundscape.name)
+					.setDesc(`${customSoundscape.tracks.length} tracks`)
+					.addButton((component) => {
+						component.setButtonText("Edit");
+
+						component.onClick(() => {
+							new EditCustomSoundscapeModal(
+								this.plugin,
+								// Gross way to deep clone the object
+								JSON.parse(JSON.stringify(customSoundscape)),
+								(
+									modifiedCustomSoundscape: CustomSoundscape
+								) => {
+									this.plugin.settings.customSoundscapes[
+										index
+									] = modifiedCustomSoundscape;
+									this.plugin.saveSettings();
+									this.display();
+								}
+							).open();
+						});
+					})
+					.addButton((component) => {
+						component.setButtonText("Remove");
+						component.setClass("mod-warning");
+
+						component.onClick(() => {
+							new ConfirmModal(
+								this.plugin.app,
+								() => {
+									this.plugin.settings.customSoundscapes.splice(
+										index,
+										1
+									);
+
+									if (
+										this.plugin.settings.soundscape ===
+										`${SOUNDSCAPE_TYPE.CUSTOM}_${customSoundscape.id}`
+									) {
+										this.plugin.settings.soundscape =
+											"lofi";
+										this.plugin.onSoundscapeChange();
+									}
+
+									this.plugin.saveSettings();
+									this.display();
+								},
+								"Remove custom soundscape",
+								`This will remove your custom soundscape "${customSoundscape.name}". Are you sure?`,
+								"Remove"
+							).open();
+						});
+					});
+			}
+		);
+
+		new Setting(containerEl).addButton((component) => {
+			component
+				.setButtonText("Add custom soundscape")
+				.setCta()
+				.onClick(() => {
+					new EditCustomSoundscapeModal(
+						this.plugin,
+						{ id: uuidv4(), name: "", tracks: [] },
+						(customSoundscape: CustomSoundscape) => {
+							this.plugin.settings.customSoundscapes.push(
+								customSoundscape
+							);
+							this.plugin.saveSettings();
+							this.display();
+						}
+					).open();
+				});
+		});
 	}
 }
