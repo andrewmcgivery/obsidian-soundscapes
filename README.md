@@ -16,6 +16,16 @@ In the settings screen you can select which Soundscape you would like to play an
 
 ![Settings screen](settings.png)
 
+### Custom Soundscapes
+
+A custom soundscape is a playlist of youtube links that you can customize to create your own ambiance. These are created within the settings screen. You can create as many custom soundscapes as you want and each custom soundscape can have as many tracks as you want.
+
+Additionally, when listening to a custom soundscape, you can use the new "next" and "previous" buttons to switch tracks.
+
+![Screenshot of custom soundscapes list](screenshot3.png)
+![Screenshot of editing a custom soundscape](screenshot4.png)
+![Screenshot of soundscapes player while playing a custom soundscape](screenshot5.png)
+
 ## Requesting New Soundscapes
 
 Have an idea for a new Soundscape? [Open an issue](https://github.com/andrewmcgivery/obsidian-soundscapes/issues/new) and link a Youtube video and why we should add it!
@@ -23,6 +33,8 @@ Have an idea for a new Soundscape? [Open an issue](https://github.com/andrewmcgi
 ## External Resources
 
 This plugin makes use of the Youtube IFrame API and includes that script as a result. Youtube videos are loaded in the background.
+
+Additionally, the plugin makes a call to this github repository occasionally to check if there is a new version.
 
 ## Credits
 
