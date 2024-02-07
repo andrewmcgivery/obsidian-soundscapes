@@ -34,6 +34,8 @@ Have an idea for a new Soundscape? [Open an issue](https://github.com/andrewmcgi
 
 This plugin makes use of the Youtube IFrame API and includes that script as a result. Youtube videos are loaded in the background.
 
+Additionally, the plugin makes a call to this github repository occasionally to check if there is a new version.
+
 ## Credits
 
 -   [Lofi beats](https://www.youtube.com/watch?v=jfKfPfyJRdk)

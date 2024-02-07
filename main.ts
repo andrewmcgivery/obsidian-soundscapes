@@ -5,6 +5,8 @@ import {
 	Setting,
 	debounce,
 	setIcon,
+	requestUrl,
+	Notice,
 } from "obsidian";
 import { v4 as uuidv4 } from "uuid";
 import EditCustomSoundscapeModal from "src/EditCustomSoundscapeModal/EditCustomSoundscapeModal";
@@ -200,6 +202,8 @@ export default class SoundscapesPlugin extends Plugin {
 		await this.loadSettings();
 		this.debouncedSaveSettings = debounce(this.saveSettings, 500, true);
 
+		this.versionCheck();
+
 		this.statusBarItem = this.addStatusBarItem();
 		this.statusBarItem.addClass("soundscapesroot");
 		this.createPlayer();
@@ -209,6 +213,28 @@ export default class SoundscapesPlugin extends Plugin {
 	}
 
 	onunload() {}
+
+	/**
+	 * Check the local plugin version against github. If there is a new version, notify the user.
+	 */
+	versionCheck() {
+		requestUrl(
+			"https://raw.githubusercontent.com/andrewmcgivery/obsidian-soundscapes/main/package.json"
+		).then(async (res) => {
+			if (res.status === 200) {
+				const response = await res.json;
+				const localVersion = process.env.PLUGIN_VERSION;
+				const remoteVersion = response.version;
+
+				if (localVersion !== remoteVersion) {
+					new Notice(
+						"There is an update available for the Soundscapes plugin. Please update to to the latest version to get the latest features!",
+						0
+					);
+				}
+			}
+		});
+	}
 
 	/**
 	 * Because we only have the id of the current soundscape, we need a helper function to get the soundscape itself when it's a custom one
@@ -443,8 +469,6 @@ export default class SoundscapesPlugin extends Plugin {
 
 		if (this.soundscapeType === SOUNDSCAPE_TYPE.CUSTOM) {
 			const customSoundscape = this.getCurrentCustomSoundscape();
-
-			console.log(customSoundscape?.tracks[this.currentTrackIndex].id);
 
 			this.player.loadVideoById({
 				videoId: customSoundscape?.tracks[this.currentTrackIndex].id,
