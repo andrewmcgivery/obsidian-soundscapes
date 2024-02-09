@@ -1,24 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useObsidianPluginContext } from "../../Context/ObsidianPluginContext";
-import {
-	LocalPlayerState,
-	PLAYER_STATE,
-	SoundscapesPluginSettings,
-} from "../../../main";
 import Icon from "../Icon/Icon";
 import Search from "../Search/Search";
-
-// TODO: move to utils
-function secondsToMinutesAndSeconds(seconds: number) {
-	var minutes = Math.floor(seconds / 60);
-	var remainingSeconds = Math.floor(seconds % 60);
-
-	// Add leading zero if necessary
-	var formattedSeconds =
-		remainingSeconds < 10 ? "0" + remainingSeconds : remainingSeconds;
-
-	return minutes + ":" + formattedSeconds;
-}
+import secondsToMinutesAndSeconds from "../../Utils/secondsToMinutesAndSeconds";
+import { LocalPlayerState } from "src/Types/Interfaces";
+import { PLAYER_STATE } from "src/Types/Enums";
 
 const Header = () => {
 	const { localPlayerStateObservable, plugin } = useObsidianPluginContext();
