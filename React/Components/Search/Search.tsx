@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useObsidianPluginContext } from "../../Context/ObsidianPluginContext";
-import { SoundscapesPluginSettings } from "../../../main";
 import Icon from "../Icon/Icon";
+import { SoundscapesPluginSettings } from "src/Settings/Settings";
 
 const Search = () => {
 	const { settingsObservable, plugin } = useObsidianPluginContext();

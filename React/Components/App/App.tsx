@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useObsidianPluginContext } from "../../Context/ObsidianPluginContext";
-import { SoundscapesPluginSettings } from "../../../main";
 import Icon from "../Icon/Icon";
 import Header from "../Header/Header";
 import secondsToMinutesAndSeconds from "../../Utils/secondsToMinutesAndSeconds";
 import { LocalPlayerState } from "src/Types/Interfaces";
 import { PLAYER_STATE } from "src/Types/Enums";
+import { SoundscapesPluginSettings } from "src/Settings/Settings";
 
 const App = () => {
 	const { settingsObservable, localPlayerStateObservable, plugin } =
