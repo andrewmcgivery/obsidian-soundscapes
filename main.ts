@@ -207,7 +207,6 @@ export default class SoundscapesPlugin extends Plugin {
 
 		// Reschedule index based on settings
 		if (this.settings.reindexFrequency !== "never") {
-			console.log("scheduling reindex!");
 			this.reindexTimer = setTimeout(
 				() => this.indexMusicLibrary(),
 				60000 * parseInt(this.settings.reindexFrequency)
