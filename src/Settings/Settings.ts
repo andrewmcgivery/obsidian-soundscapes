@@ -15,6 +15,7 @@ export interface SoundscapesPluginSettings {
 	customSoundscapes: CustomSoundscape[];
 	myMusicIndex: LocalMusicFile[];
 	myMusicFolderPath: string;
+	reindexFrequency: string;
 }
 
 export const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
 	customSoundscapes: [],
 	myMusicIndex: [],
 	myMusicFolderPath: "",
+	reindexFrequency: "5",
 };
 
 export class SoundscapesSettingsTab extends PluginSettingTab {
@@ -74,11 +76,15 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 					}
 
 					// When we select MY_MUSIC, force a re-index
+					// Also show the ribbon button!
 					if (
 						this.plugin.settings.soundscape ===
 						SOUNDSCAPE_TYPE.MY_MUSIC
 					) {
 						this.plugin.indexMusicLibrary();
+						this.plugin.ribbonButton.show();
+					} else {
+						this.plugin.ribbonButton.hide();
 					}
 
 					this.plugin.onSoundscapeChange();
@@ -197,6 +203,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 			})
 			.addExtraButton((component) => {
 				component.setIcon("folder-open");
+				component.setTooltip("Select folder");
 
 				component.onClick(() => {
 					// @ts-ignore
@@ -217,6 +224,36 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 								this.plugin.onSoundscapeChange();
 							}
 						});
+				});
+			});
+
+		new Setting(containerEl)
+			.setName("Periodic re-index")
+			.setDesc(
+				"To keep your music library up to date, the plugin needs to occasionally re-index from your music folder. You can disable this if you would prefer to manually trigger re-indexes. Re-indexes will also be triggered on startup of Obsidian or when the Soundscape or music folder path are changed."
+			)
+			.addDropdown((component) => {
+				component.addOption("never", "Never");
+				component.addOption("5", "5 Minutes (default)");
+				component.addOption("15", "15 Minutes");
+				component.addOption("30", "30 Minutes");
+				component.addOption("60", "60 Minutes");
+				component.addOption("1440", "Daily");
+
+				component.setValue(this.plugin.settings.reindexFrequency);
+
+				component.onChange((value) => {
+					this.plugin.settings.reindexFrequency = value;
+					this.plugin.saveSettings();
+					this.display();
+				});
+			})
+			.addExtraButton((component) => {
+				component.setIcon("folder-sync");
+				component.setTooltip("Re-index now");
+
+				component.onClick(() => {
+					this.plugin.indexMusicLibrary();
 				});
 			});
 	}

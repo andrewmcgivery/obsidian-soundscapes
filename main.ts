@@ -48,9 +48,11 @@ export default class SoundscapesPlugin extends Plugin {
 	volumeLowIcon: HTMLDivElement;
 	volumeHighIcon: HTMLDivElement;
 	volumeSlider: HTMLInputElement;
+	ribbonButton: HTMLElement;
 	debouncedSaveSettings: Function;
 	soundscapeType: SOUNDSCAPE_TYPE;
 	currentTrackIndex: number = 0;
+	reindexTimer: NodeJS.Timeout | null = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -76,23 +78,34 @@ export default class SoundscapesPlugin extends Plugin {
 				)
 		);
 
-		// TODO: How to hide this when setting is not set to My Music?
-		this.addRibbonIcon("music", "Soundscapes: My Music", () => {
-			this.OpenMyMusicView();
-		});
+		this.ribbonButton = this.addRibbonIcon(
+			"music",
+			"Soundscapes: My Music",
+			() => {
+				this.OpenMyMusicView();
+			}
+		);
+		this.ribbonButton.hide();
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SoundscapesSettingsTab(this.app, this));
 
-		// Delay this so startup isn't impacted
 		if (this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC) {
+			this.ribbonButton.show();
+
+			// Delay this so startup isn't impacted
 			setTimeout(() => {
 				this.indexMusicLibrary();
 			}, 1000);
 		}
 	}
 
-	onunload() {}
+	onunload() {
+		// Clear any timers if they exist
+		if (this.reindexTimer) {
+			clearTimeout(this.reindexTimer);
+		}
+	}
 
 	/**
 	 * Because we only have the id of the current soundscape, we need a helper function to get the soundscape itself when it's a custom one
@@ -133,11 +146,18 @@ export default class SoundscapesPlugin extends Plugin {
 	}
 
 	/**
-	 * TODO: Comment
+	 * Given a file path in settings, get all the music files in that folder.
+	 * Convert those music files to a index of their music metadata.
+	 * Finally, reschedule the next reindex based on settings.
 	 */
 	async indexMusicLibrary() {
 		console.time("MusicIndex");
 		const filePath = this.settings.myMusicFolderPath;
+
+		// Clear any timers if they exist
+		if (this.reindexTimer) {
+			clearTimeout(this.reindexTimer);
+		}
 
 		if (filePath.trim() === "") {
 			new Notice(
@@ -182,10 +202,14 @@ export default class SoundscapesPlugin extends Plugin {
 
 		this.saveSettings();
 
-		// Reindex every 5 minutes
-		// TODO: Should this be in settings?
-		// TODO: Save this timer to a local variable so it can be cleared on unload or when we want to manually reindex
-		setTimeout(() => this.indexMusicLibrary(), 60000 * 5);
+		// Reschedule index based on settings
+		if (this.settings.reindexFrequency !== "never") {
+			console.log("scheduling reindex!");
+			this.reindexTimer = setTimeout(
+				() => this.indexMusicLibrary(),
+				60000 * parseInt(this.settings.reindexFrequency)
+			);
+		}
 	}
 
 	/******************************************************************************************************************/
