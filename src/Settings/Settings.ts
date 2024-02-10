@@ -6,6 +6,7 @@ import EditCustomSoundscapeModal from "src/EditCustomSoundscapeModal/EditCustomS
 import SOUNDSCAPES from "src/Soundscapes";
 import { SOUNDSCAPE_TYPE } from "src/Types/Enums";
 import { CustomSoundscape, LocalMusicFile } from "src/Types/Interfaces";
+import electron from "electron";
 
 export interface SoundscapesPluginSettings {
 	soundscape: string;
@@ -13,6 +14,7 @@ export interface SoundscapesPluginSettings {
 	autoplay: boolean;
 	customSoundscapes: CustomSoundscape[];
 	myMusicIndex: LocalMusicFile[];
+	myMusicFolderPath: string;
 }
 
 export const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
@@ -21,6 +23,7 @@ export const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
 	autoplay: false,
 	customSoundscapes: [],
 	myMusicIndex: [],
+	myMusicFolderPath: "",
 };
 
 export class SoundscapesSettingsTab extends PluginSettingTab {
@@ -70,6 +73,14 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 						this.plugin.currentTrackIndex = 0;
 					}
 
+					// When we select MY_MUSIC, force a re-index
+					if (
+						this.plugin.settings.soundscape ===
+						SOUNDSCAPE_TYPE.MY_MUSIC
+					) {
+						this.plugin.indexMusicLibrary();
+					}
+
 					this.plugin.onSoundscapeChange();
 					this.plugin.saveSettings();
 					this.display();
@@ -87,7 +98,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 				});
 			});
 
-		containerEl.createEl("h2", { text: "Custom soundscapes" });
+		containerEl.createEl("h1", { text: "Custom soundscapes" });
 		containerEl.createEl("p", {
 			text: "Custom soundscapes allow you to create your own playlists of youtube videos that can be selected as a soundscape.",
 		});
@@ -169,5 +180,44 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 					).open();
 				});
 		});
+
+		containerEl.createEl("h1", { text: "My Music" });
+		containerEl.createEl("p", {
+			text: "The My Music Soundscape plays music files from your local computer. It includes a dedicated view for managing your music in addition to the mini-player on the statusbar.",
+		});
+
+		new Setting(containerEl)
+			.setName("Music path")
+			.setDesc(
+				`Path to where your music files are located. Plugin will also search through all subfolders of the provided folder. (E.g. E:/Music/iTunes/iTunes Media/Music)`
+			)
+			.addText((component) => {
+				component.setDisabled(true);
+				component.setValue(this.plugin.settings.myMusicFolderPath);
+			})
+			.addExtraButton((component) => {
+				component.setIcon("folder-open");
+
+				component.onClick(() => {
+					// @ts-ignore
+					electron.remote.dialog
+						.showOpenDialog({
+							properties: ["openDirectory"],
+							title: "Select a folder",
+						})
+						.then((result: any) => {
+							if (!result.canceled) {
+								this.plugin.settings.myMusicFolderPath =
+									result.filePaths[0];
+								// We need to reset the index and force it to reindex now that we have a new path
+								this.plugin.settings.myMusicIndex = [];
+								this.plugin.saveSettings();
+								this.display();
+								this.plugin.indexMusicLibrary();
+								this.plugin.onSoundscapeChange();
+							}
+						});
+				});
+			});
 	}
 }

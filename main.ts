@@ -85,10 +85,11 @@ export default class SoundscapesPlugin extends Plugin {
 		this.addSettingTab(new SoundscapesSettingsTab(this.app, this));
 
 		// Delay this so startup isn't impacted
-		// TODO: Only do this when setting is set to My Music
-		setTimeout(() => {
-			this.indexMusicLibrary();
-		}, 1000);
+		if (this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC) {
+			setTimeout(() => {
+				this.indexMusicLibrary();
+			}, 1000);
+		}
 	}
 
 	onunload() {}
@@ -136,7 +137,18 @@ export default class SoundscapesPlugin extends Plugin {
 	 */
 	async indexMusicLibrary() {
 		console.time("MusicIndex");
-		const filePath = "E:/Music/iTunes/iTunes Media/Music";
+		const filePath = this.settings.myMusicFolderPath;
+
+		if (filePath.trim() === "") {
+			new Notice(
+				"Please set music file path in settings to use My Music feature of Soundscapes.",
+				0
+			);
+			return;
+		}
+
+		new Notice("Soundscapes: Indexing local music files...");
+
 		const musicFilePaths = getAllMusicFiles(filePath);
 
 		const musicPromises = musicFilePaths.map(async (filePath) => {
@@ -156,8 +168,18 @@ export default class SoundscapesPlugin extends Plugin {
 
 		const songs = await Promise.all(musicPromises);
 		console.timeEnd("MusicIndex");
-		console.log(`Music Index: ${songs.length} songs indexed.`);
 		this.settings.myMusicIndex = songs;
+
+		new Notice(
+			`Soundscapes: Indexing complete. ${songs.length} songs were indexed.`
+		);
+
+		if (songs.length === 0) {
+			new Notice(
+				`Warning: Soundscapes found no songs at the configured file path.`
+			);
+		}
+
 		this.saveSettings();
 
 		// Reindex every 5 minutes
@@ -348,7 +370,16 @@ export default class SoundscapesPlugin extends Plugin {
 		}
 
 		if (this.soundscapeType === SOUNDSCAPE_TYPE.MY_MUSIC) {
-			this.localPlayer.play();
+			// If we don't currently have an audio source because we recently changed folders but now we do have an index, play the first song
+			if (
+				this.localPlayer.src === location.href &&
+				this.settings.myMusicIndex.length > 0
+			) {
+				this.currentTrackIndex = 0;
+				this.onSoundscapeChange(true);
+			} else {
+				this.localPlayer.play();
+			}
 		} else {
 			this.player.playVideo();
 		}
@@ -462,8 +493,6 @@ export default class SoundscapesPlugin extends Plugin {
 			this.nextButton.show();
 		}
 
-		// This is being triggered because the youtube player is throwing a pause event when we're switching to MyMusic
-
 		switch (state) {
 			case PLAYER_STATE.UNSTARTED:
 				this.playButton.show();
@@ -573,22 +602,31 @@ export default class SoundscapesPlugin extends Plugin {
 			this.localPlayer.pause(); // Edge Case: When switching from MyMusic to Youtube, the youtube video keeps playing
 		} else if (this.soundscapeType === SOUNDSCAPE_TYPE.MY_MUSIC) {
 			const track = this.settings.myMusicIndex[this.currentTrackIndex];
-			const fileData = fs.readFileSync(track.fullPath);
-			const base64Data = fileData.toString("base64");
 
-			this.localPlayer.pause();
-			this.localPlayer.src = `data:audio/mp3;base64,${base64Data}`;
+			if (track) {
+				const fileData = fs.readFileSync(track.fullPath);
+				const base64Data = fileData.toString("base64");
 
-			if (autoplay) {
-				this.localPlayer.play();
+				this.localPlayer.pause();
+				this.localPlayer.src = `data:audio/mp3;base64,${base64Data}`;
+
+				this.nowPlaying.setText(
+					`${track.title || track.fileName} - ${track.artist}`
+				);
+
+				if (autoplay) {
+					this.localPlayer.play();
+				} else {
+					// Need to manually send this cause the state won't be set otherwise
+					this.onStateChange({ data: PLAYER_STATE.PAUSED });
+				}
 			} else {
-				// Need to manually send this cause the state won't be set otherwise
+				// We don't have a track (still indexing or empty index)
+				// Reset the player
+				this.localPlayer.src = "";
+				this.nowPlaying.setText("");
 				this.onStateChange({ data: PLAYER_STATE.PAUSED });
 			}
-
-			this.nowPlaying.setText(
-				`${track.title || track.fileName} - ${track.artist}`
-			);
 
 			this.statusBarItem.addClass("soundscapesroot--hideyoutube");
 			this.player.pauseVideo(); // Edge Case: When switching from youtube to MyMusic, the youtube video keeps playing
@@ -602,6 +640,11 @@ export default class SoundscapesPlugin extends Plugin {
 			this.nowPlaying.setText(
 				SOUNDSCAPES[this.settings.soundscape].nowPlayingText
 			);
+
+			if (!autoplay) {
+				this.player.pauseVideo();
+			}
+
 			this.statusBarItem.removeClass("soundscapesroot--hideyoutube");
 			this.localPlayer.pause(); // Edge Case: When switching from MyMusic to Youtube, the youtube video keeps playing
 		}
