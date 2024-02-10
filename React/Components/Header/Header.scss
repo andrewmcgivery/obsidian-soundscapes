@@ -1,0 +1,144 @@
+.soundscapesmymusic {
+	.soundscapesmymusic-header {
+		background-color: var(--background-primary);
+		display: flex;
+		align-items: center;
+		padding: 0 42px;
+		height: 60px;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+
+		.soundscapesmymusic-left {
+			flex: 1;
+			display: flex;
+			align-items: center;
+
+			.soundscapesmymusic-left-controls {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+
+				.soundscapesmymusic-left-controls-button {
+					color: var(--text-muted);
+					background-color: transparent;
+					border: none;
+					box-shadow: none;
+					cursor: pointer;
+					padding: 0;
+					display: block;
+					line-height: 1;
+					--icon-size: 1.5em;
+
+					&:hover {
+						color: var(--text-normal);
+					}
+
+					&.soundscapesmymusic-left-controls-button--large {
+						--icon-size: 2em;
+					}
+				}
+			}
+		}
+
+		.soundscapesmymusic-volume {
+			flex: 1;
+			align-items: left;
+		}
+
+		.soundscapesmymusic-middle {
+			flex: 3;
+			height: 100%;
+			border-left: 1px solid var(--background-modifier-border);
+			border-right: 1px solid var(--background-modifier-border);
+			background-color: var(--background-primary-alt);
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			justify-content: space-between;
+
+			.soundscapesmymusic-middle-line1 {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				font-size: 1em;
+				padding: 8px 8px 0 8px;
+
+				.soundscapesmymusic-middle-line1-button {
+					color: var(--text-muted);
+					background-color: transparent;
+					border: none;
+					box-shadow: none;
+					cursor: pointer;
+					padding: 0;
+					display: block;
+					line-height: 1;
+					--icon-size: 1em;
+					height: auto;
+
+					&:hover {
+						color: var(--text-normal);
+					}
+
+					&.soundscapesmymusic-middle-line1-button--active {
+						color: var(--text-accent);
+					}
+				}
+
+				.soundscapesmymusic-middle-line1-left {
+					width: 60px;
+				}
+
+				.soundscapesmymusic-middle-line1-title {
+					flex: 1;
+					text-align: center;
+				}
+
+				.soundscapesmymusic-middle-line1-right {
+					width: 60px;
+					text-align: right;
+				}
+			}
+
+			.soundscapesmymusic-middle-line2 {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				font-size: 0.8em;
+				color: var(--text-muted);
+				padding: 0 8px;
+
+				.soundscapesmymusic-middle-line2-left {
+					width: 60px;
+				}
+
+				.soundscapesmymusic-middle-line2-artist {
+					flex: 1;
+					text-align: center;
+				}
+
+				.soundscapesmymusic-middle-line2-right {
+					width: 60px;
+					text-align: right;
+				}
+			}
+
+			.soundscapesmymusic-middle-seekbar {
+				width: 100%;
+				margin: 0;
+
+				&::-webkit-slider-thumb {
+					border-radius: 8px;
+					width: 8px;
+				}
+			}
+		}
+
+		.soundscapesmymusic-right {
+			flex: 2;
+			display: flex;
+			justify-content: end;
+		}
+	}
+}

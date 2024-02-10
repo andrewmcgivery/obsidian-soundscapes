@@ -1,0 +1,79 @@
+.soundscapesmymusic {
+	.view-header {
+		display: none;
+	}
+
+	.view-content {
+		padding: 0;
+	}
+
+	.soundscapesmymusic-musiclist {
+		overflow: scroll;
+		position: absolute;
+		top: 60px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 400;
+		padding-bottom: 40px;
+
+		.soundscapesmymusic-musiclist-table {
+			border-collapse: collapse;
+			width: 100%;
+
+			thead {
+				tr {
+					text-align: left;
+					background-color: var(--background-secondary);
+					position: sticky;
+					top: 0;
+					z-index: 400;
+
+					th {
+						padding: 8px 12px;
+						font-size: 0.7em;
+					}
+				}
+			}
+
+			tbody {
+				tr {
+					&:nth-child(odd) {
+						background-color: var(--background-primary);
+					}
+
+					&:nth-child(even) {
+						background-color: var(--background-primary-alt);
+					}
+
+					td {
+						padding: 6px 12px;
+						font-size: 1em;
+						cursor: pointer;
+						vertical-align: middle;
+						line-height: 1;
+
+						&:first-child {
+							width: 0;
+							padding-right: 0;
+						}
+
+						.lucide-icon {
+							display: block;
+							line-height: 0;
+							color: var(--text-accent);
+
+							svg {
+								height: 15px;
+							}
+						}
+					}
+
+					&:hover {
+						background-color: var(--background-modifier-hover);
+					}
+				}
+			}
+		}
+	}
+}

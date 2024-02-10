@@ -1,9 +1,19 @@
+@use "React/Components/App/App";
+@use "React/Components/Header/Header";
+@use "React/Components/Search/Search";
+
 .soundscapesroot {
 	position: relative;
 
 	&:hover {
 		.soundscapesroot-player {
 			opacity: 1;
+		}
+	}
+
+	&.soundscapesroot--hideyoutube {
+		.soundscapesroot-player {
+			display: none;
 		}
 	}
 

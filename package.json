@@ -19,6 +19,7 @@
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
+		"electron": "^25.8.1",
 		"esbuild": "^0.19.8",
 		"obsidian": "latest",
 		"tslib": "2.4.0",
@@ -27,6 +28,9 @@
 	"dependencies": {
 		"esbuild-copy-static-files": "^0.1.0",
 		"esbuild-sass-plugin": "^2.16.0",
+		"music-metadata": "^7.14.0",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
 		"uuid": "^9.0.1"
 	}
 }
