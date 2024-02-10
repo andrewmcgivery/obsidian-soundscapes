@@ -195,7 +195,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Music path")
 			.setDesc(
-				`Path to where your music files are located. Plugin will also search through all subfolders of the provided folder. (E.g. E:/Music/iTunes/iTunes Media/Music)`
+				`Path to where your music files are located. Plugin will also search through all subfolders of the provided folder.`
 			)
 			.addText((component) => {
 				component.setDisabled(true);
