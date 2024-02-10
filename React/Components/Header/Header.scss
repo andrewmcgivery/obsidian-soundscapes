@@ -80,6 +80,10 @@
 					&:hover {
 						color: var(--text-normal);
 					}
+
+					&.soundscapesmymusic-middle-line1-button--active {
+						color: var(--text-accent);
+					}
 				}
 
 				.soundscapesmymusic-middle-line1-left {

@@ -20,6 +20,7 @@ import {
 	SoundscapesPluginSettings,
 	SoundscapesSettingsTab,
 } from "src/Settings/Settings";
+import createShuffleQueue from "src/Utils/createShuffleQueue";
 
 /**
  * This allows a "live-reload" of Obsidian when developing the plugin.
@@ -53,6 +54,8 @@ export default class SoundscapesPlugin extends Plugin {
 	soundscapeType: SOUNDSCAPE_TYPE;
 	currentTrackIndex: number = 0;
 	reindexTimer: NodeJS.Timeout | null = null;
+	shuffleQueue: number[] = [];
+	shuffleQueueSpot: number = 0;
 
 	async onload() {
 		await this.loadSettings();
@@ -434,10 +437,34 @@ export default class SoundscapesPlugin extends Plugin {
 				this.currentTrackIndex--;
 			}
 		} else if (this.soundscapeType === SOUNDSCAPE_TYPE.MY_MUSIC) {
-			if (this.currentTrackIndex === 0) {
-				this.currentTrackIndex = this.settings.myMusicIndex.length - 1;
+			// Are we in shuffle mode?
+			if (this.settings.myMusicShuffle) {
+				// If Shuffle queue is empty, let's populate it
+				if (this.shuffleQueue.length === 0) {
+					this.shuffleQueue = createShuffleQueue(
+						this.settings.myMusicIndex
+					);
+					this.shuffleQueueSpot = 0;
+				}
+
+				if (this.shuffleQueueSpot === 0) {
+					// If we are at the beginning, wrap around to the end!
+					this.currentTrackIndex =
+						this.shuffleQueue[this.shuffleQueue.length - 1];
+				} else {
+					// Otherwise, go to the previous song in the shuffle queue
+					this.shuffleQueueSpot--;
+					this.currentTrackIndex =
+						this.shuffleQueue[this.shuffleQueueSpot];
+				}
 			} else {
-				this.currentTrackIndex--;
+				// Not in shuffle mode, go to next song
+				if (this.currentTrackIndex === 0) {
+					this.currentTrackIndex =
+						this.settings.myMusicIndex.length - 1;
+				} else {
+					this.currentTrackIndex--;
+				}
 			}
 		}
 		this.onSoundscapeChange();
@@ -456,10 +483,34 @@ export default class SoundscapesPlugin extends Plugin {
 				this.currentTrackIndex = 0;
 			}
 		} else if (this.soundscapeType === SOUNDSCAPE_TYPE.MY_MUSIC) {
-			if (this.settings.myMusicIndex[this.currentTrackIndex + 1]) {
-				this.currentTrackIndex++;
+			// Are we in shuffle mode?
+			if (this.settings.myMusicShuffle) {
+				// If Shuffle queue is empty, let's populate it
+				if (this.shuffleQueue.length === 0) {
+					this.shuffleQueue = createShuffleQueue(
+						this.settings.myMusicIndex
+					);
+					this.shuffleQueueSpot = 0;
+				}
+
+				if (this.shuffleQueueSpot === this.shuffleQueue.length - 1) {
+					// If we get to the end of all possible songs to shuffle, go back to the start and reset the shuffle queue
+					this.currentTrackIndex = this.shuffleQueue[0];
+					this.shuffleQueue = [];
+					this.shuffleQueueSpot = 0;
+				} else {
+					// Otherwise, go to the next song in the shuffle queue
+					this.shuffleQueueSpot++;
+					this.currentTrackIndex =
+						this.shuffleQueue[this.shuffleQueueSpot];
+				}
 			} else {
-				this.currentTrackIndex = 0;
+				// Not in shuffle mode, go to next song
+				if (this.settings.myMusicIndex[this.currentTrackIndex + 1]) {
+					this.currentTrackIndex++;
+				} else {
+					this.currentTrackIndex = 0;
+				}
 			}
 		}
 		this.onSoundscapeChange();
@@ -484,6 +535,19 @@ export default class SoundscapesPlugin extends Plugin {
 			(song) => song.fileName === fileName
 		);
 		this.onSoundscapeChange();
+	}
+
+	/**
+	 * Turn on shuffle mode. When we toggle it on, reset the shuffle queue.
+	 */
+	toggleShuffle() {
+		this.settings.myMusicShuffle = !this.settings.myMusicShuffle;
+		this.saveSettings();
+
+		if (this.settings.myMusicShuffle) {
+			this.shuffleQueue = [];
+			this.shuffleQueueSpot = 0;
+		}
 	}
 
 	/******************************************************************************************************************/
