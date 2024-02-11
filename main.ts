@@ -626,21 +626,12 @@ export default class SoundscapesPlugin extends Plugin {
 				});
 				break;
 			case PLAYER_STATE.ENDED:
-				// When it's a playlist-type soundscape, go to the next track, or wrap back around to the first track if at the end
-				if (this.soundscapeType === SOUNDSCAPE_TYPE.CUSTOM) {
-					if (customSoundscape?.tracks[this.currentTrackIndex + 1]) {
-						this.currentTrackIndex++;
-					} else {
-						this.currentTrackIndex = 0;
-					}
-				} else if (this.soundscapeType === SOUNDSCAPE_TYPE.MY_MUSIC) {
-					if (
-						this.settings.myMusicIndex[this.currentTrackIndex + 1]
-					) {
-						this.currentTrackIndex++;
-					} else {
-						this.currentTrackIndex = 0;
-					}
+				// When it's a playlist-type soundscape, go to the next song
+				if (
+					this.soundscapeType === SOUNDSCAPE_TYPE.CUSTOM ||
+					this.soundscapeType === SOUNDSCAPE_TYPE.MY_MUSIC
+				) {
+					this.next();
 				}
 				// For Standard, Loop videos once they end
 				// For Custom, we'll go to the next track (per above logic)
