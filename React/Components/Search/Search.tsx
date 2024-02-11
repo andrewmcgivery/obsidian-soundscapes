@@ -10,7 +10,7 @@ const Search = () => {
 	);
 	const [query, setQuery] = useState("");
 	const [selectedResultIndex, setSelectedResultIndex] = useState(0);
-	const resultsDiv = useRef<HTMLElement>(null);
+	const resultsDiv = useRef<HTMLDivElement>(null);
 
 	const searchResult = useMemo(
 		() =>
