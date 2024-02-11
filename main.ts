@@ -60,6 +60,7 @@ export default class SoundscapesPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+		this.currentTrackIndex = this.settings.currentTrackIndex; // Persist the current track when closing and opening
 		this.settingsObservable = new Observable(this.settings);
 		this.localPlayerStateObservable = new Observable({});
 		this.debouncedSaveSettings = debounce(this.saveSettings, 500, true);
@@ -129,23 +130,38 @@ export default class SoundscapesPlugin extends Plugin {
 	/**
 	 * Check the local plugin version against github. If there is a new version, notify the user.
 	 */
-	versionCheck() {
-		requestUrl(
+	async versionCheck() {
+		const localVersion = process.env.PLUGIN_VERSION;
+		const stableVersion = await requestUrl(
 			"https://raw.githubusercontent.com/andrewmcgivery/obsidian-soundscapes/main/package.json"
 		).then(async (res) => {
 			if (res.status === 200) {
 				const response = await res.json;
-				const localVersion = process.env.PLUGIN_VERSION;
-				const remoteVersion = response.version;
-
-				if (localVersion !== remoteVersion) {
-					new Notice(
-						"There is an update available for the Soundscapes plugin. Please update to to the latest version to get the latest features!",
-						0
-					);
-				}
+				return response.version;
 			}
 		});
+		const betaVersion = await requestUrl(
+			"https://raw.githubusercontent.com/andrewmcgivery/obsidian-soundscapes/beta/package.json"
+		).then(async (res) => {
+			if (res.status === 200) {
+				const response = await res.json;
+				return response.version;
+			}
+		});
+
+		if (localVersion?.indexOf("beta") !== -1) {
+			if (localVersion !== betaVersion) {
+				new Notice(
+					"There is a beta update available for the Soundscapes plugin. Please update to to the latest version to get the latest features!",
+					0
+				);
+			}
+		} else if (localVersion !== stableVersion) {
+			new Notice(
+				"There is an update available for the Soundscapes plugin. Please update to to the latest version to get the latest features!",
+				0
+			);
+		}
 	}
 
 	/**
@@ -182,7 +198,9 @@ export default class SoundscapesPlugin extends Plugin {
 			return {
 				fileName: path.basename(filePath),
 				fullPath: filePath,
-				title: metadata.common.title,
+				title:
+					metadata.common.title ||
+					path.basename(filePath).replace(/\.(mp3)$/gi, ""),
 				artist: metadata.common.artist,
 				album: metadata.common.album,
 				duration: metadata.format.duration,
@@ -336,9 +354,13 @@ export default class SoundscapesPlugin extends Plugin {
 		setIcon(this.nextButton, "skip-forward");
 		this.nextButton.onclick = () => this.next();
 
-		this.nowPlaying = this.statusBarItem.createEl("div", {
-			cls: "soundscapesroot-nowplaying",
-		});
+		this.nowPlaying = this.statusBarItem
+			.createEl("div", {
+				cls: "soundscapesroot-nowplaying",
+			})
+			.createEl("div", {
+				cls: "soundscapesroot-nowplaying-text",
+			});
 
 		const volumeIcons = this.statusBarItem.createEl("div", {
 			cls: "soundscapesroot-volumeIcons",
@@ -697,9 +719,7 @@ export default class SoundscapesPlugin extends Plugin {
 				this.localPlayer.pause();
 				this.localPlayer.src = `data:audio/mp3;base64,${base64Data}`;
 
-				this.nowPlaying.setText(
-					`${track.title || track.fileName} - ${track.artist}`
-				);
+				this.nowPlaying.setText(`${track.title} - ${track.artist}`);
 
 				if (autoplay) {
 					this.localPlayer.play();
@@ -735,6 +755,8 @@ export default class SoundscapesPlugin extends Plugin {
 			this.statusBarItem.removeClass("soundscapesroot--hideyoutube");
 			this.localPlayer.pause(); // Edge Case: When switching from MyMusic to Youtube, the youtube video keeps playing
 		}
+
+		this.saveSettings();
 	}
 
 	/******************************************************************************************************************/
@@ -757,6 +779,9 @@ export default class SoundscapesPlugin extends Plugin {
 	 * Save data to disk, stored in data.json in plugin folder
 	 */
 	async saveSettings() {
+		// Persist the current track index
+		this.settings.currentTrackIndex = this.currentTrackIndex;
+
 		this.settingsObservable.setValue(this.settings);
 		await this.saveData(this.settings);
 	}

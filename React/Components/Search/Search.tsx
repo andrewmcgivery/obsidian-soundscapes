@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useObsidianPluginContext } from "../../Context/ObsidianPluginContext";
 import Icon from "../Icon/Icon";
 import { SoundscapesPluginSettings } from "src/Settings/Settings";
@@ -10,6 +10,7 @@ const Search = () => {
 	);
 	const [query, setQuery] = useState("");
 	const [selectedResultIndex, setSelectedResultIndex] = useState(0);
+	const resultsDiv = useRef<HTMLElement>(null);
 
 	const searchResult = useMemo(
 		() =>
@@ -34,7 +35,7 @@ const Search = () => {
 									.toLowerCase()
 									.indexOf(query.toLowerCase()) > -1
 						)
-						.slice(0, 5),
+						.slice(0, 20),
 		[settings.myMusicIndex, query]
 	);
 
@@ -92,6 +93,18 @@ const Search = () => {
 									setSelectedResultIndex(
 										selectedResultIndex - 1
 									);
+
+									if (selectedResultIndex + 1 > 5) {
+										resultsDiv?.current?.scrollTo({
+											top:
+												(selectedResultIndex + 1 - 5) *
+												60,
+										});
+									} else {
+										resultsDiv?.current?.scrollTo({
+											top: 0,
+										});
+									}
 								}
 								break;
 							case "ArrowDown":
@@ -102,6 +115,16 @@ const Search = () => {
 									setSelectedResultIndex(
 										selectedResultIndex + 1
 									);
+									// If we're beyond 6 results (index 5), move the scrollbar. Each element is around 60px;
+									if (selectedResultIndex + 1 > 5) {
+										resultsDiv?.current?.scrollTo({
+											// We're doing - 5 here because we want to align with the element that would be at the top
+											// if the selected element is at the bottom of the view.
+											top:
+												(selectedResultIndex + 1 - 5) *
+												60,
+										});
+									}
 								}
 								break;
 							case "Enter":
@@ -113,7 +136,10 @@ const Search = () => {
 					}
 				}}
 			/>
-			<div className="soundscapesmymusic-right-search-results">
+			<div
+				className="soundscapesmymusic-right-search-results"
+				ref={resultsDiv}
+			>
 				{query.trim() !== "" && searchResult.length === 0 && (
 					<div className="soundscapesmymusic-right-search-results-message">
 						No results found
@@ -136,7 +162,7 @@ const Search = () => {
 						}
 					>
 						<div className="soundscapesmymusic-right-search-results-result-line1">
-							{song.title || song.fileName}
+							{song.title}
 						</div>
 						<div className="soundscapesmymusic-right-search-results-result-line2">
 							{song.artist}

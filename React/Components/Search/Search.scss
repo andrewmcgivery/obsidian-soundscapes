@@ -3,6 +3,7 @@
 		.soundscapesmymusic-right-search {
 			color: var(--text-muted);
 			position: relative;
+			display: flex;
 			--icon-size: 1.3em;
 
 			&:hover {
@@ -26,7 +27,8 @@
 			}
 
 			.soundscapesmymusic-right-search-input {
-				width: 200px;
+				flex: 1;
+				width: 100%;
 				padding-left: 32px;
 			}
 

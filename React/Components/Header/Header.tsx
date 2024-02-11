@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useObsidianPluginContext } from "../../Context/ObsidianPluginContext";
 import Icon from "../Icon/Icon";
 import Search from "../Search/Search";
@@ -11,6 +11,11 @@ const Header = () => {
 	const [localPlayerState, setLocalPlayerState] = useState<LocalPlayerState>(
 		localPlayerStateObservable?.getValue()
 	);
+	const titleElementRef = useRef<HTMLDivElement>(null);
+	const shouldScrollTitle = titleElementRef?.current
+		? titleElementRef?.current?.scrollWidth >
+		  titleElementRef?.current?.clientWidth
+		: false;
 
 	/**
 	 * Subscribe to local player state from Obsidian
@@ -87,9 +92,16 @@ const Header = () => {
 									<Icon name="shuffle" />
 								</button>
 							</div>
-							<div className="soundscapesmymusic-middle-line1-title">
-								{localPlayerState.currentTrack.title ||
-									localPlayerState.currentTrack.fileName}
+							<div
+								className={`soundscapesmymusic-middle-line1-title ${
+									shouldScrollTitle &&
+									"soundscapesmymusic-middle-line1-title--scroll"
+								}`}
+								ref={titleElementRef}
+							>
+								<span className="soundscapesmymusic-middle-line1-title-text">
+									{localPlayerState.currentTrack.title}
+								</span>
 							</div>
 							<div className="soundscapesmymusic-middle-line1-right"></div>
 						</div>

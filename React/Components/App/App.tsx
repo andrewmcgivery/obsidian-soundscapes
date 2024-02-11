@@ -84,7 +84,7 @@ const App = () => {
 											<Icon name="volume" />
 										)}
 								</td>
-								<td>{song.title || song.fileName}</td>
+								<td>{song.title}</td>
 								<td>{song.artist}</td>
 								<td>{song.album}</td>
 								<td>

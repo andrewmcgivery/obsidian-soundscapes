@@ -17,6 +17,7 @@ export interface SoundscapesPluginSettings {
 	myMusicFolderPath: string;
 	reindexFrequency: string;
 	myMusicShuffle: boolean;
+	currentTrackIndex: number;
 }
 
 export const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
@@ -28,6 +29,7 @@ export const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
 	myMusicFolderPath: "",
 	reindexFrequency: "5",
 	myMusicShuffle: false,
+	currentTrackIndex: 0,
 };
 
 export class SoundscapesSettingsTab extends PluginSettingTab {

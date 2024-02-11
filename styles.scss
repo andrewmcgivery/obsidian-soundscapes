@@ -2,6 +2,15 @@
 @use "React/Components/Header/Header";
 @use "React/Components/Search/Search";
 
+@keyframes marquee {
+	0% {
+		transform: translateX(100%);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
+
 .soundscapesroot {
 	position: relative;
 
@@ -40,6 +49,14 @@
 
 	.soundscapesroot-nowplaying {
 		margin: 0 12px;
+		width: 150px;
+		overflow: hidden;
+		white-space: nowrap;
+
+		.soundscapesroot-nowplaying-text {
+			display: inline-block;
+			animation: marquee 10s linear infinite;
+		}
 	}
 }
 
