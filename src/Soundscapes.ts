@@ -106,6 +106,14 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		youtubeId: "87etrUp83Yc",
 		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
+	vtmbloodlines: {
+		id: "vtmbloodlines",
+		name: "Vampire: The Masquerade – Bloodlines",
+		nowPlayingText: "VTM - Bloodlines ambience",
+		isLiveVideo: false,
+		youtubeId: "pCZxb43L_Ag",
+		type: SOUNDSCAPE_TYPE.STANDARD,
+	},
 };
 
 export default SOUNDSCAPES;
