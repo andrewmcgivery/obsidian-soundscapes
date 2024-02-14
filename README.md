@@ -26,6 +26,18 @@ Additionally, when listening to a custom soundscape, you can use the new "next" 
 ![Screenshot of editing a custom soundscape](screenshot4.png)
 ![Screenshot of soundscapes player while playing a custom soundscape](screenshot5.png)
 
+### My Music - Local Music Library
+
+The "My Music" soundscape allows you to have a full music player experience right within Obsidian using your local MP3 music files. Upon selecting your local music folder, the plugin will index your music and occasionally re-index it in the background.
+
+My Music supports playing with the mini-player in the status bar as well as a new dedicated My Music view with a new icon on the Ribbon sidebar once the "My Music" soundscape is selected. You can close this view and the music will continue playing.
+
+Within the My Music view, you can play, pause, next, previous, seek, shuffle, and search.
+
+![Settings view with My Music selected](screenshot6.png)
+
+![My Music view within Obsidian](screenshot7.png)
+
 ## Requesting New Soundscapes
 
 Have an idea for a new Soundscape? [Open an issue](https://github.com/andrewmcgivery/obsidian-soundscapes/issues/new) and link a Youtube video and why we should add it!
