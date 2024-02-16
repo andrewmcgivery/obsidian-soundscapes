@@ -159,6 +159,7 @@ interface Player {
 	seekTo(position: number): void;
 	getDuration(): number;
 	setVolume(volume: Number): void;
+	setPlaybackRate(suggestedRate: Number): void;
 	loadVideoById(options: { videoId: String | undefined }): void;
 }
 
@@ -176,6 +177,8 @@ interface SoundscapesPluginSettings {
 	soundscape: string;
 	volume: number;
 	autoplay: boolean;
+	startLiveAtOrigin: boolean;
+	playbackRate: number;
 	customSoundscapes: CustomSoundscape[];
 }
 
@@ -183,6 +186,8 @@ const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
 	soundscape: "lofi",
 	volume: 25,
 	autoplay: false,
+	startLiveAtOrigin: false,
+	playbackRate: 1,
 	customSoundscapes: [],
 };
 
@@ -384,8 +389,10 @@ export default class SoundscapesPlugin extends Plugin {
 				this.soundscapeType === SOUNDSCAPE_TYPE.STANDARD &&
 				SOUNDSCAPES[this.settings.soundscape].isLiveVideo
 			) {
-				this.player.seekTo(this.player.getDuration());
+				origin = this.settings.startLiveAtOrigin ? 0 : this.player.getDuration();
+				this.player.seekTo(origin);
 			}
+			this.player.setPlaybackRate(this.settings.playbackRate)
 			this.player.playVideo();
 		};
 
@@ -497,7 +504,9 @@ export default class SoundscapesPlugin extends Plugin {
 				videoId: SOUNDSCAPES[this.settings.soundscape].youtubeId,
 			});
 			if (SOUNDSCAPES[this.settings.soundscape].isLiveVideo) {
-				this.player.seekTo(this.player.getDuration());
+				origin = this.settings.startLiveAtOrigin ? 0 : this.player.getDuration();
+				setTimeout(()=>{this.player.seekTo(origin);}, 500);
+				setTimeout(()=>{this.player.setPlaybackRate(this.settings.playbackRate);}, 500);
 			}
 			this.nowPlaying.setText(
 				SOUNDSCAPES[this.settings.soundscape].nowPlayingText
