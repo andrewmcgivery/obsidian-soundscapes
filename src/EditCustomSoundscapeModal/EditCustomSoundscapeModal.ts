@@ -1,6 +1,7 @@
-import { Modal, Setting, setTooltip } from "obsidian";
-import SoundscapesPlugin, { CustomSoundscape } from "../../main";
+import { Modal, Setting } from "obsidian";
+import SoundscapesPlugin from "../../main";
 import ConfirmModal from "../ConfirmModal/ConfirmModal";
+import { CustomSoundscape } from "src/Types/Interfaces";
 
 class EditCustomSoundscapeModal extends Modal {
 	_customSoundscape: CustomSoundscape;

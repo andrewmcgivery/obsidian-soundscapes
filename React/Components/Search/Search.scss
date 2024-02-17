@@ -1,0 +1,93 @@
+.soundscapesmymusic {
+	.soundscapesmymusic-right {
+		.soundscapesmymusic-right-search {
+			color: var(--text-muted);
+			position: relative;
+			display: flex;
+			--icon-size: 1.3em;
+
+			&:hover {
+				color: var(--text-normal);
+			}
+
+			&:has(.soundscapesmymusic-right-search--active) {
+				.soundscapesmymusic-right-search-results {
+					display: block;
+				}
+			}
+
+			.lucide-icon {
+				line-height: 1;
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 4px;
+				display: flex;
+				align-items: center;
+			}
+
+			.soundscapesmymusic-right-search-input {
+				flex: 1;
+				width: 100%;
+				padding-left: 32px;
+			}
+
+			.soundscapesmymusic-right-search-results {
+				position: absolute;
+				top: 110%;
+				right: -25px;
+				background-color: var(--background-primary);
+				border: 1px solid var(--prompt-border-color);
+				border-radius: 12px;
+				box-shadow: 0px 1.8px 7.3px rgba(0, 0, 0, 0.071),
+					0px 6.3px 24.7px rgba(0, 0, 0, 0.112),
+					0px 30px 90px rgba(0, 0, 0, 0.2);
+				z-index: 500;
+				width: 250px;
+				max-height: 400px;
+				overflow: auto;
+				display: none;
+
+				.soundscapesmymusic-right-search-results-message {
+					padding: 12px;
+					font-size: 1em;
+					color: var(--text-normal);
+				}
+
+				.soundscapesmymusic-right-search-results-result {
+					border-bottom: 1px solid var(--prompt-border-color);
+					padding: 12px;
+					cursor: pointer;
+
+					&:last-child {
+						border-bottom: none;
+					}
+
+					&:hover {
+						background-color: var(--background-modifier-hover);
+					}
+
+					&.soundscapesmymusic-right-search-results-result--selected {
+						background-color: var(--background-modifier-hover);
+
+						&:hover {
+							background-color: var(
+								--background-modifier-active-hover
+							);
+						}
+					}
+
+					.soundscapesmymusic-right-search-results-result-line1 {
+						font-size: 1em;
+						color: var(--text-normal);
+					}
+
+					.soundscapesmymusic-right-search-results-result-line2 {
+						font-size: 0.8em;
+						color: var(--text-muted);
+					}
+				}
+			}
+		}
+	}
+}
