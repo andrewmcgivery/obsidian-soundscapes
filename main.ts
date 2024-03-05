@@ -44,6 +44,7 @@ export default class SoundscapesPlugin extends Plugin {
 	pauseButton: HTMLButtonElement;
 	nextButton: HTMLButtonElement;
 	previousButton: HTMLButtonElement;
+	nowPlayingRoot: HTMLDivElement;
 	nowPlaying: HTMLDivElement;
 	volumeMutedIcon: HTMLDivElement;
 	volumeLowIcon: HTMLDivElement;
@@ -360,13 +361,13 @@ export default class SoundscapesPlugin extends Plugin {
 		setIcon(this.nextButton, "skip-forward");
 		this.nextButton.onclick = () => this.next();
 
-		this.nowPlaying = this.statusBarItem
-			.createEl("div", {
-				cls: "soundscapesroot-nowplaying",
-			})
-			.createEl("div", {
-				cls: "soundscapesroot-nowplaying-text",
-			});
+		this.nowPlayingRoot = this.statusBarItem.createEl("div", {
+			cls: "soundscapesroot-nowplaying",
+		});
+		this.nowPlaying = this.nowPlayingRoot.createEl("div", {
+			cls: "soundscapesroot-nowplaying-text",
+		});
+		this.toggleNowPlayingScroll();
 
 		const volumeIcons = this.statusBarItem.createEl("div", {
 			cls: "soundscapesroot-volumeIcons",
@@ -574,6 +575,21 @@ export default class SoundscapesPlugin extends Plugin {
 		if (this.settings.myMusicShuffle) {
 			this.shuffleQueue = [];
 			this.shuffleQueueSpot = 0;
+		}
+	}
+
+	/**
+	 * Either enables or disables song title scrolling on the mini player depending on the user's settings
+	 */
+	toggleNowPlayingScroll() {
+		if (this.settings.scrollSongTitle) {
+			this.nowPlayingRoot.removeClass(
+				"soundscapesroot-nowplaying--noscroll"
+			);
+		} else {
+			this.nowPlayingRoot.addClass(
+				"soundscapesroot-nowplaying--noscroll"
+			);
 		}
 	}
 

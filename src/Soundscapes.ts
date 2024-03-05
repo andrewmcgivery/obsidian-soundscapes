@@ -114,6 +114,14 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		youtubeId: "pCZxb43L_Ag",
 		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
+	chillsynth: {
+		id: "chillsynth",
+		name: "ChillSynth FM",
+		nowPlayingText: "ChillSynth FM",
+		isLiveVideo: true,
+		youtubeId: "UedTcufyrHc",
+		type: SOUNDSCAPE_TYPE.STANDARD,
+	},
 };
 
 export default SOUNDSCAPES;

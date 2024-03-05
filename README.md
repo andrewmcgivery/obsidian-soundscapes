@@ -64,6 +64,7 @@ Additionally, the plugin makes a call to this github repository occasionally to 
 -   [Yakuza/Like a Dragon bar ambience](https://www.youtube.com/watch?v=Q0GtyZbHJDM)
 -   [Sky: Children of the Light soundtrack](https://www.youtube.com/watch?v=87etrUp83Yc)
 -   [Vampire: The Masquerade – Bloodlines Ambient Playlist](https://www.youtube.com/watch?v=pCZxb43L_Ag)
+-   [ChillSynth FM - lofi synthwave radio for retro dreaming](https://www.youtube.com/watch?v=UedTcufyrHc)
 
 ## Reporting Issues
 
