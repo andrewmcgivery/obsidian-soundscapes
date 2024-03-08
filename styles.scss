@@ -58,6 +58,30 @@
 			animation: marquee 10s linear infinite;
 		}
 	}
+
+	&.soundscapesroot--mobile {
+		display: flex;
+		align-items: center;
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		border-bottom: none;
+	}
+}
+
+.is-phone .soundscapesroot.soundscapesroot--mobile {
+	bottom: 48px;
+	width: 100%;
+	border-radius: 0;
+	border-left: none;
+
+	.soundscapesroot-nowplaying {
+		display: none;
+	}
+
+	.soundscapesroot-volumeIcons {
+		margin-left: auto;
+	}
 }
 
 input.soundscapes-validation-error {

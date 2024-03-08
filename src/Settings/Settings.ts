@@ -64,7 +64,9 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 					}
 				);
 
-				component.addOption(SOUNDSCAPE_TYPE.MY_MUSIC, "My Music");
+				if (!this.app.isMobile) {
+					component.addOption(SOUNDSCAPE_TYPE.MY_MUSIC, "My Music");
+				}
 
 				component.setValue(this.plugin.settings.soundscape);
 
@@ -88,7 +90,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 						this.plugin.indexMusicLibrary();
 						this.plugin.ribbonButton.show();
 					} else {
-						this.plugin.ribbonButton.hide();
+						this.plugin.ribbonButton?.hide();
 					}
 
 					this.plugin.onSoundscapeChange();
@@ -191,74 +193,76 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 				});
 		});
 
-		containerEl.createEl("h1", { text: "My Music" });
-		containerEl.createEl("p", {
-			text: "The My Music Soundscape plays music files from your local computer. It includes a dedicated view for managing your music in addition to the mini-player on the statusbar.",
-		});
-
-		new Setting(containerEl)
-			.setName("Music path")
-			.setDesc(
-				`Path to where your music files are located. Plugin will also search through all subfolders of the provided folder.`
-			)
-			.addText((component) => {
-				component.setDisabled(true);
-				component.setValue(this.plugin.settings.myMusicFolderPath);
-			})
-			.addExtraButton((component) => {
-				component.setIcon("folder-open");
-				component.setTooltip("Select folder");
-
-				component.onClick(() => {
-					// @ts-ignore
-					electron.remote.dialog
-						.showOpenDialog({
-							properties: ["openDirectory"],
-							title: "Select a folder",
-						})
-						.then((result: any) => {
-							if (!result.canceled) {
-								this.plugin.settings.myMusicFolderPath =
-									result.filePaths[0];
-								// We need to reset the index and force it to reindex now that we have a new path
-								this.plugin.settings.myMusicIndex = [];
-								this.plugin.saveSettings();
-								this.display();
-								this.plugin.indexMusicLibrary();
-								this.plugin.onSoundscapeChange();
-							}
-						});
-				});
+		if (!this.app.isMobile) {
+			containerEl.createEl("h1", { text: "My Music" });
+			containerEl.createEl("p", {
+				text: "The My Music Soundscape plays music files from your local computer. It includes a dedicated view for managing your music in addition to the mini-player on the statusbar.",
 			});
 
-		new Setting(containerEl)
-			.setName("Periodic re-index")
-			.setDesc(
-				"To keep your music library up to date, the plugin needs to occasionally re-index from your music folder. You can disable this if you would prefer to manually trigger re-indexes. Re-indexes will also be triggered on startup of Obsidian or when the Soundscape or music folder path are changed."
-			)
-			.addDropdown((component) => {
-				component.addOption("never", "Never");
-				component.addOption("5", "5 Minutes (default)");
-				component.addOption("15", "15 Minutes");
-				component.addOption("30", "30 Minutes");
-				component.addOption("60", "60 Minutes");
-				component.addOption("1440", "Daily");
+			new Setting(containerEl)
+				.setName("Music path")
+				.setDesc(
+					`Path to where your music files are located. Plugin will also search through all subfolders of the provided folder.`
+				)
+				.addText((component) => {
+					component.setDisabled(true);
+					component.setValue(this.plugin.settings.myMusicFolderPath);
+				})
+				.addExtraButton((component) => {
+					component.setIcon("folder-open");
+					component.setTooltip("Select folder");
 
-				component.setValue(this.plugin.settings.reindexFrequency);
-
-				component.onChange((value) => {
-					this.plugin.settings.reindexFrequency = value;
-					this.plugin.saveSettings();
-					this.display();
+					component.onClick(() => {
+						// @ts-ignore
+						electron.remote.dialog
+							.showOpenDialog({
+								properties: ["openDirectory"],
+								title: "Select a folder",
+							})
+							.then((result: any) => {
+								if (!result.canceled) {
+									this.plugin.settings.myMusicFolderPath =
+										result.filePaths[0];
+									// We need to reset the index and force it to reindex now that we have a new path
+									this.plugin.settings.myMusicIndex = [];
+									this.plugin.saveSettings();
+									this.display();
+									this.plugin.indexMusicLibrary();
+									this.plugin.onSoundscapeChange();
+								}
+							});
+					});
 				});
-			})
-			.addExtraButton((component) => {
-				component.setIcon("folder-sync");
-				component.setTooltip("Re-index now");
 
-				component.onClick(() => {
-					this.plugin.indexMusicLibrary();
+			new Setting(containerEl)
+				.setName("Periodic re-index")
+				.setDesc(
+					"To keep your music library up to date, the plugin needs to occasionally re-index from your music folder. You can disable this if you would prefer to manually trigger re-indexes. Re-indexes will also be triggered on startup of Obsidian or when the Soundscape or music folder path are changed."
+				)
+				.addDropdown((component) => {
+					component.addOption("never", "Never");
+					component.addOption("5", "5 Minutes (default)");
+					component.addOption("15", "15 Minutes");
+					component.addOption("30", "30 Minutes");
+					component.addOption("60", "60 Minutes");
+					component.addOption("1440", "Daily");
+
+					component.setValue(this.plugin.settings.reindexFrequency);
+
+					component.onChange((value) => {
+						this.plugin.settings.reindexFrequency = value;
+						this.plugin.saveSettings();
+						this.display();
+					});
+				})
+				.addExtraButton((component) => {
+					component.setIcon("folder-sync");
+					component.setTooltip("Re-index now");
+
+					component.onClick(() => {
+						this.plugin.indexMusicLibrary();
+					});
 				});
-			});
+		}
 	}
 }

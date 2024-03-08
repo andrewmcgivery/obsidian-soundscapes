@@ -68,6 +68,9 @@ const App = () => {
 								onDoubleClick={() =>
 									plugin?.changeMyMusicTrack(song.fileName)
 								}
+								onTouchEnd={() =>
+									plugin?.changeMyMusicTrack(song.fileName)
+								}
 							>
 								<td>
 									{localPlayerState.currentTrack?.fileName ===

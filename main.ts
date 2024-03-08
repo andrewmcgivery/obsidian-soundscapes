@@ -67,29 +67,46 @@ export default class SoundscapesPlugin extends Plugin {
 
 		this.versionCheck();
 
-		this.statusBarItem = this.addStatusBarItem();
-		this.statusBarItem.addClass("soundscapesroot");
+		if (
+			this.app.isMobile &&
+			this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC
+		) {
+			this.settings.soundscape = DEFAULT_SETTINGS.soundscape;
+		}
+
+		if (this.app.isMobile) {
+			this.statusBarItem = document.body.createEl("div", {
+				cls: "soundscapesroot soundscapesroot--mobile status-bar",
+			});
+		} else {
+			this.statusBarItem = this.addStatusBarItem();
+			this.statusBarItem.addClass("soundscapesroot");
+		}
 		this.createPlayer();
 
-		this.registerView(
-			SOUNDSCAPES_REACT_VIEW,
-			(leaf) =>
-				new ReactView(
-					this,
-					this.settingsObservable,
-					this.localPlayerStateObservable,
-					leaf
-				)
-		);
+		if (!this.app.isMobile) {
+			this.registerView(
+				SOUNDSCAPES_REACT_VIEW,
+				(leaf) =>
+					new ReactView(
+						this,
+						this.settingsObservable,
+						this.localPlayerStateObservable,
+						leaf
+					)
+			);
+		}
 
-		this.ribbonButton = this.addRibbonIcon(
-			"music",
-			"Soundscapes: My Music",
-			() => {
-				this.OpenMyMusicView();
-			}
-		);
-		this.ribbonButton.hide();
+		if (!this.app.isMobile) {
+			this.ribbonButton = this.addRibbonIcon(
+				"music",
+				"Soundscapes: My Music",
+				() => {
+					this.OpenMyMusicView();
+				}
+			);
+			this.ribbonButton.hide();
+		}
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SoundscapesSettingsTab(this.app, this));
@@ -101,6 +118,20 @@ export default class SoundscapesPlugin extends Plugin {
 			setTimeout(() => {
 				this.indexMusicLibrary();
 			}, 1000);
+		}
+
+		if (process.env.NODE_ENV === "development") {
+			// @ts-ignore
+			if (process.env.EMULATE_MOBILE && !this.app.isMobile) {
+				// @ts-ignore
+				this.app.emulateMobile(true);
+			}
+
+			// @ts-ignore
+			if (!process.env.EMULATE_MOBILE && this.app.isMobile) {
+				// @ts-ignore
+				this.app.emulateMobile(false);
+			}
 		}
 	}
 
@@ -382,6 +413,7 @@ export default class SoundscapesPlugin extends Plugin {
 		setIcon(this.volumeHighIcon, "volume-2");
 
 		this.volumeSlider = this.statusBarItem.createEl("input", {
+			cls: "soundscapesroot-volumebar",
 			attr: {
 				type: "range",
 				min: 0,
