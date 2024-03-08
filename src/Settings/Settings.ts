@@ -66,6 +66,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 					}
 				);
 
+				// @ts-ignore
 				if (!this.app.isMobile) {
 					component.addOption(SOUNDSCAPE_TYPE.MY_MUSIC, "My Music");
 				}
@@ -207,6 +208,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 				});
 		});
 
+		// @ts-ignore
 		if (!this.app.isMobile) {
 			containerEl.createEl("h1", { text: "My Music" });
 			containerEl.createEl("p", {

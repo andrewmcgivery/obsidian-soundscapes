@@ -69,12 +69,14 @@ export default class SoundscapesPlugin extends Plugin {
 		this.versionCheck();
 
 		if (
+			// @ts-ignore
 			this.app.isMobile &&
 			this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC
 		) {
 			this.settings.soundscape = DEFAULT_SETTINGS.soundscape;
 		}
 
+		// @ts-ignore
 		if (this.app.isMobile) {
 			this.statusBarItem = document.body.createEl("div", {
 				cls: "soundscapesroot soundscapesroot--mobile status-bar",
@@ -85,6 +87,7 @@ export default class SoundscapesPlugin extends Plugin {
 		}
 		this.createPlayer();
 
+		// @ts-ignore
 		if (!this.app.isMobile) {
 			this.registerView(
 				SOUNDSCAPES_REACT_VIEW,
@@ -98,6 +101,7 @@ export default class SoundscapesPlugin extends Plugin {
 			);
 		}
 
+		// @ts-ignore
 		if (!this.app.isMobile) {
 			this.ribbonButton = this.addRibbonIcon(
 				"music",
