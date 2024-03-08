@@ -62,12 +62,16 @@ export default class SoundscapesPlugin extends Plugin {
 		try {
 			await this.loadSettings();
 
+			console.log("Soundscapes: settings loaded");
+
 			this.currentTrackIndex = this.settings.currentTrackIndex; // Persist the current track when closing and opening
 			this.settingsObservable = new Observable(this.settings);
 			this.localPlayerStateObservable = new Observable({});
 			this.debouncedSaveSettings = debounce(this.saveSettings, 500, true);
 
 			this.versionCheck();
+
+			console.log("Soundscapes: version checked loaded");
 
 			if (
 				// @ts-ignore
@@ -86,7 +90,12 @@ export default class SoundscapesPlugin extends Plugin {
 				this.statusBarItem = this.addStatusBarItem();
 				this.statusBarItem.addClass("soundscapesroot");
 			}
+
+			console.log("Soundscapes: status bar created");
+
 			this.createPlayer();
+
+			console.log("Soundscapes: player created");
 
 			// @ts-ignore
 			if (!this.app.isMobile) {
@@ -117,6 +126,8 @@ export default class SoundscapesPlugin extends Plugin {
 			// This adds a settings tab so the user can configure various aspects of the plugin
 			this.addSettingTab(new SoundscapesSettingsTab(this.app, this));
 
+			console.log("Soundscapes: settings tab created");
+
 			if (this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC) {
 				this.ribbonButton.show();
 
@@ -140,6 +151,7 @@ export default class SoundscapesPlugin extends Plugin {
 				}
 			}
 		} catch (error) {
+			alert(`Soundscape error: ${error}`);
 			console.log("Soundscape Error: ", error);
 			console.log(`Soundscape error: ${error}`);
 		}
