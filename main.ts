@@ -44,6 +44,7 @@ export default class SoundscapesPlugin extends Plugin {
 	pauseButton: HTMLButtonElement;
 	nextButton: HTMLButtonElement;
 	previousButton: HTMLButtonElement;
+	nowPlayingRoot: HTMLDivElement;
 	nowPlaying: HTMLDivElement;
 	volumeMutedIcon: HTMLDivElement;
 	volumeLowIcon: HTMLDivElement;
@@ -301,10 +302,16 @@ export default class SoundscapesPlugin extends Plugin {
 	 */
 	createPlayer() {
 		// Load in youtube iframe api script
-		this.statusBarItem.createEl("script", {
+		const ytScript = this.statusBarItem.createEl("script", {
 			attr: {
 				src: "https://www.youtube.com/iframe_api",
 			},
+		});
+		ytScript.addEventListener("error", () => {
+			new Notice(
+				"Soundscapes was unable to load the Youtube player. This could be because you are offline or have youtube blocked. You may still use My Music mode."
+			);
+			this.onPlayerReady();
 		});
 
 		// Create div to insert the video into
@@ -385,13 +392,13 @@ export default class SoundscapesPlugin extends Plugin {
 		setIcon(this.nextButton, "skip-forward");
 		this.nextButton.onclick = () => this.next();
 
-		this.nowPlaying = this.statusBarItem
-			.createEl("div", {
-				cls: "soundscapesroot-nowplaying",
-			})
-			.createEl("div", {
-				cls: "soundscapesroot-nowplaying-text",
-			});
+		this.nowPlayingRoot = this.statusBarItem.createEl("div", {
+			cls: "soundscapesroot-nowplaying",
+		});
+		this.nowPlaying = this.nowPlayingRoot.createEl("div", {
+			cls: "soundscapesroot-nowplaying-text",
+		});
+		this.toggleNowPlayingScroll();
 
 		const volumeIcons = this.statusBarItem.createEl("div", {
 			cls: "soundscapesroot-volumeIcons",
@@ -446,7 +453,7 @@ export default class SoundscapesPlugin extends Plugin {
 			this.soundscapeType === SOUNDSCAPE_TYPE.STANDARD &&
 			SOUNDSCAPES[this.settings.soundscape].isLiveVideo
 		) {
-			this.player.seekTo(this.player.getDuration());
+			this.player?.seekTo(this.player.getDuration());
 		}
 
 		if (this.soundscapeType === SOUNDSCAPE_TYPE.MY_MUSIC) {
@@ -461,7 +468,7 @@ export default class SoundscapesPlugin extends Plugin {
 				this.localPlayer.play();
 			}
 		} else {
-			this.player.playVideo();
+			this.player?.playVideo();
 		}
 	}
 
@@ -472,7 +479,7 @@ export default class SoundscapesPlugin extends Plugin {
 		if (this.soundscapeType === SOUNDSCAPE_TYPE.MY_MUSIC) {
 			this.localPlayer.pause();
 		} else {
-			this.player.pauseVideo();
+			this.player?.pauseVideo();
 		}
 	}
 
@@ -603,6 +610,21 @@ export default class SoundscapesPlugin extends Plugin {
 		}
 	}
 
+	/**
+	 * Either enables or disables song title scrolling on the mini player depending on the user's settings
+	 */
+	toggleNowPlayingScroll() {
+		if (this.settings.scrollSongTitle) {
+			this.nowPlayingRoot.removeClass(
+				"soundscapesroot-nowplaying--noscroll"
+			);
+		} else {
+			this.nowPlayingRoot.addClass(
+				"soundscapesroot-nowplaying--noscroll"
+			);
+		}
+	}
+
 	/******************************************************************************************************************/
 	//#endregion Control Player
 	/******************************************************************************************************************/
@@ -677,7 +699,7 @@ export default class SoundscapesPlugin extends Plugin {
 	onVolumeChange(e: any) {
 		const volume = parseInt(e.target.value);
 		this.volumeSlider.value = e.target.value;
-		this.player.setVolume(volume);
+		this.player?.setVolume(volume);
 		this.localPlayer.volume = volume / 100; // Audio object expects 0-1
 
 		if (volume === 0) {
@@ -719,7 +741,7 @@ export default class SoundscapesPlugin extends Plugin {
 		if (this.soundscapeType === SOUNDSCAPE_TYPE.CUSTOM) {
 			const customSoundscape = this.getCurrentCustomSoundscape();
 
-			this.player.loadVideoById({
+			this.player?.loadVideoById({
 				videoId: customSoundscape?.tracks[this.currentTrackIndex].id,
 			});
 			this.nowPlaying.setText(
@@ -727,7 +749,7 @@ export default class SoundscapesPlugin extends Plugin {
 			);
 
 			if (!autoplay) {
-				this.player.pauseVideo();
+				this.player?.pauseVideo();
 			}
 
 			this.statusBarItem.removeClass("soundscapesroot--hideyoutube");
@@ -759,20 +781,20 @@ export default class SoundscapesPlugin extends Plugin {
 			}
 
 			this.statusBarItem.addClass("soundscapesroot--hideyoutube");
-			this.player.pauseVideo(); // Edge Case: When switching from youtube to MyMusic, the youtube video keeps playing
+			this.player?.pauseVideo(); // Edge Case: When switching from youtube to MyMusic, the youtube video keeps playing
 		} else {
-			this.player.loadVideoById({
+			this.player?.loadVideoById({
 				videoId: SOUNDSCAPES[this.settings.soundscape].youtubeId,
 			});
 			if (SOUNDSCAPES[this.settings.soundscape].isLiveVideo) {
-				this.player.seekTo(this.player.getDuration());
+				this.player?.seekTo(this.player.getDuration());
 			}
 			this.nowPlaying.setText(
 				SOUNDSCAPES[this.settings.soundscape].nowPlayingText
 			);
 
 			if (!autoplay) {
-				this.player.pauseVideo();
+				this.player?.pauseVideo();
 			}
 
 			this.statusBarItem.removeClass("soundscapesroot--hideyoutube");

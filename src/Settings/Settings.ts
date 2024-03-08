@@ -12,6 +12,7 @@ export interface SoundscapesPluginSettings {
 	soundscape: string;
 	volume: number;
 	autoplay: boolean;
+	scrollSongTitle: boolean;
 	customSoundscapes: CustomSoundscape[];
 	myMusicIndex: LocalMusicFile[];
 	myMusicFolderPath: string;
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
 	soundscape: "lofi",
 	volume: 25,
 	autoplay: false,
+	scrollSongTitle: true,
 	customSoundscapes: [],
 	myMusicIndex: [],
 	myMusicFolderPath: "",
@@ -106,6 +108,18 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 				component.setValue(this.plugin.settings.autoplay);
 				component.onChange((value) => {
 					this.plugin.settings.autoplay = value;
+					this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName("Scroll song title")
+			.setDesc(`Save space on the status bar by scrolling song title?`)
+			.addToggle((component) => {
+				component.setValue(this.plugin.settings.scrollSongTitle);
+				component.onChange((value) => {
+					this.plugin.settings.scrollSongTitle = value;
+					this.plugin.toggleNowPlayingScroll();
 					this.plugin.saveSettings();
 				});
 			});

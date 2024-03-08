@@ -57,6 +57,13 @@
 			display: inline-block;
 			animation: marquee 10s linear infinite;
 		}
+
+		&.soundscapesroot-nowplaying--noscroll {
+			width: auto;
+			.soundscapesroot-nowplaying-text {
+				animation: none;
+			}
+		}
 	}
 
 	&.soundscapesroot--mobile {
