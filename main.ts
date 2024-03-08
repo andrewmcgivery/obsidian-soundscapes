@@ -59,84 +59,89 @@ export default class SoundscapesPlugin extends Plugin {
 	shuffleQueueSpot: number = 0;
 
 	async onload() {
-		await this.loadSettings();
+		try {
+			await this.loadSettings();
 
-		this.currentTrackIndex = this.settings.currentTrackIndex; // Persist the current track when closing and opening
-		this.settingsObservable = new Observable(this.settings);
-		this.localPlayerStateObservable = new Observable({});
-		this.debouncedSaveSettings = debounce(this.saveSettings, 500, true);
+			this.currentTrackIndex = this.settings.currentTrackIndex; // Persist the current track when closing and opening
+			this.settingsObservable = new Observable(this.settings);
+			this.localPlayerStateObservable = new Observable({});
+			this.debouncedSaveSettings = debounce(this.saveSettings, 500, true);
 
-		this.versionCheck();
+			this.versionCheck();
 
-		if (
+			if (
+				// @ts-ignore
+				this.app.isMobile &&
+				this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC
+			) {
+				this.settings.soundscape = DEFAULT_SETTINGS.soundscape;
+			}
+
 			// @ts-ignore
-			this.app.isMobile &&
-			this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC
-		) {
-			this.settings.soundscape = DEFAULT_SETTINGS.soundscape;
-		}
+			if (this.app.isMobile) {
+				this.statusBarItem = document.body.createEl("div", {
+					cls: "soundscapesroot soundscapesroot--mobile status-bar",
+				});
+			} else {
+				this.statusBarItem = this.addStatusBarItem();
+				this.statusBarItem.addClass("soundscapesroot");
+			}
+			this.createPlayer();
 
-		// @ts-ignore
-		if (this.app.isMobile) {
-			this.statusBarItem = document.body.createEl("div", {
-				cls: "soundscapesroot soundscapesroot--mobile status-bar",
-			});
-		} else {
-			this.statusBarItem = this.addStatusBarItem();
-			this.statusBarItem.addClass("soundscapesroot");
-		}
-		this.createPlayer();
+			// @ts-ignore
+			if (!this.app.isMobile) {
+				this.registerView(
+					SOUNDSCAPES_REACT_VIEW,
+					(leaf) =>
+						new ReactView(
+							this,
+							this.settingsObservable,
+							this.localPlayerStateObservable,
+							leaf
+						)
+				);
+			}
 
-		// @ts-ignore
-		if (!this.app.isMobile) {
-			this.registerView(
-				SOUNDSCAPES_REACT_VIEW,
-				(leaf) =>
-					new ReactView(
-						this,
-						this.settingsObservable,
-						this.localPlayerStateObservable,
-						leaf
-					)
-			);
-		}
+			// @ts-ignore
+			if (!this.app.isMobile) {
+				this.ribbonButton = this.addRibbonIcon(
+					"music",
+					"Soundscapes: My Music",
+					() => {
+						this.OpenMyMusicView();
+					}
+				);
+				this.ribbonButton.hide();
+			}
 
-		// @ts-ignore
-		if (!this.app.isMobile) {
-			this.ribbonButton = this.addRibbonIcon(
-				"music",
-				"Soundscapes: My Music",
-				() => {
-					this.OpenMyMusicView();
+			// This adds a settings tab so the user can configure various aspects of the plugin
+			this.addSettingTab(new SoundscapesSettingsTab(this.app, this));
+
+			if (this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC) {
+				this.ribbonButton.show();
+
+				// Delay this so startup isn't impacted
+				setTimeout(() => {
+					this.indexMusicLibrary();
+				}, 1000);
+			}
+
+			if (process.env.NODE_ENV === "development") {
+				// @ts-ignore
+				if (process.env.EMULATE_MOBILE && !this.app.isMobile) {
+					// @ts-ignore
+					this.app.emulateMobile(true);
 				}
-			);
-			this.ribbonButton.hide();
-		}
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SoundscapesSettingsTab(this.app, this));
-
-		if (this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC) {
-			this.ribbonButton.show();
-
-			// Delay this so startup isn't impacted
-			setTimeout(() => {
-				this.indexMusicLibrary();
-			}, 1000);
-		}
-
-		if (process.env.NODE_ENV === "development") {
-			// @ts-ignore
-			if (process.env.EMULATE_MOBILE && !this.app.isMobile) {
 				// @ts-ignore
-				this.app.emulateMobile(true);
+				if (!process.env.EMULATE_MOBILE && this.app.isMobile) {
+					// @ts-ignore
+					this.app.emulateMobile(false);
+				}
 			}
-
-			// @ts-ignore
-			if (!process.env.EMULATE_MOBILE && this.app.isMobile) {
-				// @ts-ignore
-				this.app.emulateMobile(false);
-			}
+		} catch (error) {
+			console.log("Soundscape Error: ", error);
+			console.log(`Soundscape error: ${error}`);
 		}
 	}
 
