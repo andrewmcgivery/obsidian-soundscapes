@@ -6,7 +6,6 @@ import EditCustomSoundscapeModal from "src/EditCustomSoundscapeModal/EditCustomS
 import SOUNDSCAPES from "src/Soundscapes";
 import { SOUNDSCAPE_TYPE } from "src/Types/Enums";
 import { CustomSoundscape, LocalMusicFile } from "src/Types/Interfaces";
-import electron from "electron";
 
 export interface SoundscapesPluginSettings {
 	soundscape: string;
@@ -230,7 +229,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 
 					component.onClick(() => {
 						// @ts-ignore
-						electron.remote.dialog
+						window.electron.remote.dialog
 							.showOpenDialog({
 								properties: ["openDirectory"],
 								title: "Select a folder",
