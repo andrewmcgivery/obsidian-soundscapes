@@ -71,30 +71,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 				component.setValue(this.plugin.settings.soundscape);
 
 				component.onChange((value: string) => {
-					this.plugin.settings.soundscape = value;
-
-					if (
-						this.plugin.settings.soundscape.startsWith(
-							`${SOUNDSCAPE_TYPE.CUSTOM}_`
-						)
-					) {
-						this.plugin.currentTrackIndex = 0;
-					}
-
-					// When we select MY_MUSIC, force a re-index
-					// Also show the ribbon button!
-					if (
-						this.plugin.settings.soundscape ===
-						SOUNDSCAPE_TYPE.MY_MUSIC
-					) {
-						this.plugin.indexMusicLibrary();
-						this.plugin.ribbonButton.show();
-					} else {
-						this.plugin.ribbonButton.hide();
-					}
-
-					this.plugin.onSoundscapeChange();
-					this.plugin.saveSettings();
+					this.plugin.changeSoundscape(value);
 					this.display();
 				});
 			});
@@ -148,6 +125,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 									] = modifiedCustomSoundscape;
 									this.plugin.saveSettings();
 									this.display();
+									this.plugin.populateChangeSoundscapeButton();
 								}
 							).open();
 						});
@@ -176,6 +154,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 
 									this.plugin.saveSettings();
 									this.display();
+									this.plugin.populateChangeSoundscapeButton();
 								},
 								"Remove custom soundscape",
 								`This will remove your custom soundscape "${customSoundscape.name}". Are you sure?`,
@@ -200,6 +179,7 @@ export class SoundscapesSettingsTab extends PluginSettingTab {
 							);
 							this.plugin.saveSettings();
 							this.display();
+							this.plugin.populateChangeSoundscapeButton();
 						}
 					).open();
 				});

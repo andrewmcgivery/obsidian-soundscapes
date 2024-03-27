@@ -65,6 +65,8 @@ Additionally, the plugin makes a call to this github repository occasionally to 
 -   [Sky: Children of the Light soundtrack](https://www.youtube.com/watch?v=87etrUp83Yc)
 -   [Vampire: The Masquerade – Bloodlines Ambient Playlist](https://www.youtube.com/watch?v=pCZxb43L_Ag)
 -   [ChillSynth FM - lofi synthwave radio for retro dreaming](https://www.youtube.com/watch?v=UedTcufyrHc)
+-   [peaceful piano radio 🎹 - music to focus/study to](https://www.youtube.com/watch?v=vMxYL4Cj85Y)
+-   [synthwave radio 🌌 - beats to chill/game to](https://www.youtube.com/watch?v=4xDzrJKXOOY)
 
 ## Reporting Issues
 

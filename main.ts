@@ -44,6 +44,7 @@ export default class SoundscapesPlugin extends Plugin {
 	pauseButton: HTMLButtonElement;
 	nextButton: HTMLButtonElement;
 	previousButton: HTMLButtonElement;
+	changeSoundscapeSelect: HTMLSelectElement;
 	nowPlayingRoot: HTMLDivElement;
 	nowPlaying: HTMLDivElement;
 	volumeMutedIcon: HTMLDivElement;
@@ -341,26 +342,47 @@ export default class SoundscapesPlugin extends Plugin {
 	 * Create all the UI elements
 	 */
 	createControls() {
+		// Previous Button
 		this.previousButton = this.statusBarItem.createEl("button", {
 			cls: "soundscapesroot-previousbutton",
 		});
 		setIcon(this.previousButton, "skip-back");
 		this.previousButton.onclick = () => this.previous();
 
+		// Play Button
 		this.playButton = this.statusBarItem.createEl("button", {});
 		setIcon(this.playButton, "play");
 		this.playButton.onclick = () => this.play();
 
+		// Pause Button
 		this.pauseButton = this.statusBarItem.createEl("button", {});
 		setIcon(this.pauseButton, "pause");
 		this.pauseButton.onclick = () => this.pause();
 
+		// Next Button
 		this.nextButton = this.statusBarItem.createEl("button", {
 			cls: "soundscapesroot-nextbutton",
 		});
 		setIcon(this.nextButton, "skip-forward");
 		this.nextButton.onclick = () => this.next();
 
+		// Change Soundscape Button
+		const changeSoundscapeButton = this.statusBarItem.createEl("button", {
+			cls: "soundscapesroot-changesoundscapebutton",
+		});
+		setIcon(changeSoundscapeButton, "list-music");
+		this.changeSoundscapeSelect = changeSoundscapeButton.createEl(
+			"select",
+			{
+				cls: "soundscapesroot-changesoundscapeselect",
+				attr: {
+					id: "soundscapesroot-changesoundscapeselect",
+				},
+			}
+		);
+		this.populateChangeSoundscapeButton();
+
+		// Now Playing
 		this.nowPlayingRoot = this.statusBarItem.createEl("div", {
 			cls: "soundscapesroot-nowplaying",
 		});
@@ -369,6 +391,7 @@ export default class SoundscapesPlugin extends Plugin {
 		});
 		this.toggleNowPlayingScroll();
 
+		// Volume control
 		const volumeIcons = this.statusBarItem.createEl("div", {
 			cls: "soundscapesroot-volumeIcons",
 		});
@@ -402,6 +425,45 @@ export default class SoundscapesPlugin extends Plugin {
 		this.volumeSlider.addEventListener(
 			"input",
 			this.onVolumeChange.bind(this)
+		);
+	}
+
+	/**
+	 * Populates the dropdown on the miniplayer with all available soundscapes
+	 */
+	populateChangeSoundscapeButton() {
+		this.changeSoundscapeSelect.replaceChildren();
+
+		Object.values(SOUNDSCAPES).forEach((soundscape) => {
+			this.changeSoundscapeSelect.createEl("option", {
+				text: soundscape.name,
+				value: soundscape.id,
+			});
+		});
+
+		this.settings.customSoundscapes.forEach((customSoundscape) => {
+			if (customSoundscape.tracks.length > 0) {
+				this.changeSoundscapeSelect.createEl("option", {
+					text: customSoundscape.name,
+					value: `${SOUNDSCAPE_TYPE.CUSTOM}_${customSoundscape.id}`,
+				});
+			}
+		});
+
+		this.changeSoundscapeSelect.createEl("option", {
+			text: "My Music",
+			value: SOUNDSCAPE_TYPE.MY_MUSIC,
+		});
+
+		this.changeSoundscapeSelect.value = this.settings.soundscape;
+
+		this.changeSoundscapeSelect.addEventListener(
+			"change",
+			(event: Event) => {
+				this.changeSoundscape(
+					(event?.target as HTMLSelectElement).value
+				);
+			}
 		);
 	}
 
@@ -593,6 +655,30 @@ export default class SoundscapesPlugin extends Plugin {
 		}
 	}
 
+	/**
+	 * Changes the currently playing soundscape and triggers other downstream side effects
+	 * @param soundscape
+	 */
+	changeSoundscape(soundscape: string) {
+		this.settings.soundscape = soundscape;
+
+		if (this.settings.soundscape.startsWith(`${SOUNDSCAPE_TYPE.CUSTOM}_`)) {
+			this.currentTrackIndex = 0;
+		}
+
+		// When we select MY_MUSIC, force a re-index
+		// Also show the ribbon button!
+		if (this.settings.soundscape === SOUNDSCAPE_TYPE.MY_MUSIC) {
+			this.indexMusicLibrary();
+			this.ribbonButton.show();
+		} else {
+			this.ribbonButton.hide();
+		}
+
+		this.onSoundscapeChange();
+		this.saveSettings();
+	}
+
 	/******************************************************************************************************************/
 	//#endregion Control Player
 	/******************************************************************************************************************/
@@ -768,6 +854,9 @@ export default class SoundscapesPlugin extends Plugin {
 			this.statusBarItem.removeClass("soundscapesroot--hideyoutube");
 			this.localPlayer.pause(); // Edge Case: When switching from MyMusic to Youtube, the youtube video keeps playing
 		}
+
+		// Keep miniplayer's soundscape selection button up to date
+		this.changeSoundscapeSelect.value = this.settings.soundscape;
 
 		this.saveSettings();
 	}

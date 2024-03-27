@@ -47,6 +47,20 @@
 		margin-left: 4px;
 	}
 
+	.soundscapesroot-changesoundscapebutton {
+		margin-left: 4px;
+		position: relative;
+	}
+
+	.soundscapesroot-changesoundscapeselect {
+		opacity: 0;
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+	}
+
 	.soundscapesroot-nowplaying {
 		margin: 0 12px;
 		width: 150px;

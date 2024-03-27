@@ -122,6 +122,22 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		youtubeId: "UedTcufyrHc",
 		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
+	peacefulpiano: {
+		id: "peacefulpiano",
+		name: "Peaceful piano radio",
+		nowPlayingText: "Peaceful piano radio",
+		isLiveVideo: true,
+		youtubeId: "vMxYL4Cj85Y",
+		type: SOUNDSCAPE_TYPE.STANDARD,
+	},
+	synthwave: {
+		id: "synthwave",
+		name: "Synthwave radio",
+		nowPlayingText: "Synthwave radio",
+		isLiveVideo: true,
+		youtubeId: "4xDzrJKXOOY",
+		type: SOUNDSCAPE_TYPE.STANDARD,
+	},
 };
 
 export default SOUNDSCAPES;
