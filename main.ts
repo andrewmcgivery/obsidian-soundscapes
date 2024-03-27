@@ -33,6 +33,8 @@ if (process.env.NODE_ENV === "development") {
 	);
 }
 
+let isTrackPlaying: boolean;
+
 export default class SoundscapesPlugin extends Plugin {
 	settings: SoundscapesPluginSettings;
 	settingsObservable: Observable;
@@ -61,6 +63,7 @@ export default class SoundscapesPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+		isTrackPlaying = this.settings.autoplay;
 
 		this.currentTrackIndex = this.settings.currentTrackIndex; // Persist the current track when closing and opening
 		this.settingsObservable = new Observable(this.settings);
@@ -104,6 +107,37 @@ export default class SoundscapesPlugin extends Plugin {
 				this.indexMusicLibrary();
 			}, 1000);
 		}
+
+		// adding commands to be run from command palette or bind a hotkey to them
+		this.addCommand({
+			id: "go-to-next-track",
+			name: "Go to next track",
+			callback: () => {
+				this.next();
+			},
+		});
+
+		this.addCommand({
+			id: "go-to-previous-track",
+			name: "Go to previous track",
+			callback: () => {
+				this.previous();
+			},
+		});
+
+		this.addCommand({
+			id: "Play/Pause",
+			name: "Play/Pause current track",
+			callback: () => {
+				if (isTrackPlaying) {
+					this.pause();
+					isTrackPlaying = false;
+				} else {
+					this.play();
+					isTrackPlaying = true;
+				}
+			},
+		});
 	}
 
 	onunload() {
@@ -352,12 +386,18 @@ export default class SoundscapesPlugin extends Plugin {
 		// Play Button
 		this.playButton = this.statusBarItem.createEl("button", {});
 		setIcon(this.playButton, "play");
-		this.playButton.onclick = () => this.play();
+		this.playButton.onclick = () => {
+			this.play();
+			isTrackPlaying = true;
+		};
 
 		// Pause Button
 		this.pauseButton = this.statusBarItem.createEl("button", {});
 		setIcon(this.pauseButton, "pause");
-		this.pauseButton.onclick = () => this.pause();
+		this.pauseButton.onclick = () => {
+			this.pause();
+			isTrackPlaying = false;
+		};
 
 		// Next Button
 		this.nextButton = this.statusBarItem.createEl("button", {
