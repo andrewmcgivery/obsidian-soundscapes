@@ -33,8 +33,6 @@ if (process.env.NODE_ENV === "development") {
 	);
 }
 
-let isTrackPlaying: boolean;
-
 export default class SoundscapesPlugin extends Plugin {
 	settings: SoundscapesPluginSettings;
 	settingsObservable: Observable;
@@ -62,7 +60,6 @@ export default class SoundscapesPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		isTrackPlaying = this.settings.autoplay;
 
 		this.currentTrackIndex = this.settings.currentTrackIndex; // Persist the current track when closing and opening
 		this.settingsObservable = new Observable(this.settings);
@@ -128,12 +125,13 @@ export default class SoundscapesPlugin extends Plugin {
 			id: "Play/Pause",
 			name: "Play/Pause current track",
 			callback: () => {
-				if (isTrackPlaying) {
+				if (
+					this.localPlayerStateObservable.getValue().playerState ===
+					PLAYER_STATE.PLAYING
+				) {
 					this.pause();
-					isTrackPlaying = false;
 				} else {
 					this.play();
-					isTrackPlaying = true;
 				}
 			},
 		});
@@ -383,17 +381,11 @@ export default class SoundscapesPlugin extends Plugin {
 
 		this.playButton = this.statusBarItem.createEl("button", {});
 		setIcon(this.playButton, "play");
-		this.playButton.onclick = () => {
-			this.play();
-			isTrackPlaying = true;
-		};
+		this.playButton.onclick = () => this.play();
 
 		this.pauseButton = this.statusBarItem.createEl("button", {});
 		setIcon(this.pauseButton, "pause");
-		this.pauseButton.onclick = () => {
-			this.pause();
-			isTrackPlaying = false;
-		};
+		this.pauseButton.onclick = () => this.pause();
 
 		this.nextButton = this.statusBarItem.createEl("button", {
 			cls: "soundscapesroot-nextbutton",
