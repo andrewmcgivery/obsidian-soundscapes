@@ -14,6 +14,7 @@ export interface SoundscapesPluginSettings {
 	autoplay: boolean;
 	scrollSongTitle: boolean;
 	customSoundscapes: CustomSoundscape[];
+	trackProgress: number;
 	myMusicIndex: LocalMusicFile[];
 	myMusicFolderPath: string;
 	reindexFrequency: string;
@@ -26,6 +27,7 @@ export const DEFAULT_SETTINGS: SoundscapesPluginSettings = {
 	volume: 25,
 	autoplay: false,
 	scrollSongTitle: true,
+	trackProgress: 0,
 	customSoundscapes: [],
 	myMusicIndex: [],
 	myMusicFolderPath: "",

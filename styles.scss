@@ -61,6 +61,12 @@
 		right: 0;
 	}
 
+	.soundscapesroot-progress-duration{
+		margin: 10px;
+		width: auto;
+		white-space: nowrap;
+	}
+
 	.soundscapesroot-nowplaying {
 		margin: 0 12px;
 		width: 150px;
@@ -78,6 +84,10 @@
 				animation: none;
 			}
 		}
+	}
+
+	.trackProgress{
+		width: 100%;
 	}
 }
 
