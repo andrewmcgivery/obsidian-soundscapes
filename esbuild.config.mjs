@@ -16,7 +16,7 @@ const prod = process.argv[2] === "production";
 const outdir = prod
 	? "./dist/"
 	: // Assumed local path. Update this to the path of your local development vault
-	  "E:/Documents/PersonalObsidianVault/.obsidian/plugins/obsidian-soundscapes/";
+	  "C:/Users/andre/OneDrive/Documents/test develop vault/.obsidian/plugins/obsidian-soundscapes/";
 
 const context = await esbuild.context({
 	banner: {

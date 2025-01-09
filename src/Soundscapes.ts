@@ -15,7 +15,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		name: "Spa atmosphere",
 		nowPlayingText: "Spa atmosphere",
 		isLiveVideo: true,
-		youtubeId: "luxiL4SQVVE",
+		youtubeId: "FbxLnvWVSrk",
 		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	sims: {
@@ -63,7 +63,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		name: "Relaxing jazz",
 		nowPlayingText: "Relaxing jazz",
 		isLiveVideo: false,
-		youtubeId: "tNvh2w8lTes",
+		youtubeId: "0u34Pb25BNg",
 		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	coffeeshop: {
@@ -79,7 +79,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		name: "Animal Crossing New Horizons",
 		nowPlayingText: "Animal Crossing New Horizons",
 		isLiveVideo: false,
-		youtubeId: "zru-TLye9jo",
+		youtubeId: "eKEAmOUFYJg",
 		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	yakuzabar: {
@@ -127,7 +127,7 @@ const SOUNDSCAPES: Record<string, Soundscape> = {
 		name: "Peaceful piano radio",
 		nowPlayingText: "Peaceful piano radio",
 		isLiveVideo: true,
-		youtubeId: "vMxYL4Cj85Y",
+		youtubeId: "TtkFsfOP9QI",
 		type: SOUNDSCAPE_TYPE.STANDARD,
 	},
 	synthwave: {
