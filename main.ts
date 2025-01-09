@@ -104,6 +104,38 @@ export default class SoundscapesPlugin extends Plugin {
 				this.indexMusicLibrary();
 			}, 1000);
 		}
+
+		// adding commands to be run from command palette or bind a hotkey to them
+		this.addCommand({
+			id: "go-to-next-track",
+			name: "Go to next track",
+			callback: () => {
+				this.next();
+			},
+		});
+
+		this.addCommand({
+			id: "go-to-previous-track",
+			name: "Go to previous track",
+			callback: () => {
+				this.previous();
+			},
+		});
+
+		this.addCommand({
+			id: "Play/Pause",
+			name: "Play/Pause current track",
+			callback: () => {
+				if (
+					this.localPlayerStateObservable.getValue().playerState ===
+					PLAYER_STATE.PLAYING
+				) {
+					this.pause();
+				} else {
+					this.play();
+				}
+			},
+		});
 	}
 
 	onunload() {
