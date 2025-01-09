@@ -105,7 +105,7 @@ export default class SoundscapesPlugin extends Plugin {
 			}, 1000);
 		}
 
-		// adding commands to be run from command palette or bind a hotkey to them
+		// Adding commands to be run from command palette or bind a hotkey to them
 		this.addCommand({
 			id: "go-to-next-track",
 			name: "Go to next track",
