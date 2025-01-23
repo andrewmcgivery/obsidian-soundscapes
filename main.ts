@@ -43,6 +43,8 @@ export default class SoundscapesPlugin extends Plugin {
 	playButton: HTMLButtonElement;
 	pauseButton: HTMLButtonElement;
 	nextButton: HTMLButtonElement;
+	trackProgressSlider: HTMLInputElement;
+	progressDuration : HTMLDivElement;
 	previousButton: HTMLButtonElement;
 	changeSoundscapeSelect: HTMLSelectElement;
 	nowPlayingRoot: HTMLDivElement;
@@ -398,6 +400,29 @@ export default class SoundscapesPlugin extends Plugin {
 		setIcon(this.nextButton, "skip-forward");
 		this.nextButton.onclick = () => this.next();
 
+		// Progress : Duration
+		this.progressDuration = this.statusBarItem.createEl("div", {
+			cls: "soundscapesroot-progress-duration",
+		});
+		// Change Button
+		this.trackProgressSlider = this.statusBarItem.createEl("input", {
+			attr: {
+				type: "range",
+				min: 0,
+				max: 1,
+				step: 0.01,
+				value: this.settings.trackProgress,
+				class : "trackProgress"
+			},
+		});
+		// Create a virtual event object
+		this.onTrackProgressChange({ target: { value: this.settings.trackProgress } });
+
+		this.trackProgressSlider.addEventListener(
+			"input",
+			this.onTrackProgressChange.bind(this)
+		)
+
 		// Change Soundscape Button
 		const changeSoundscapeButton = this.statusBarItem.createEl("button", {
 			cls: "soundscapesroot-changesoundscapebutton",
@@ -645,6 +670,9 @@ export default class SoundscapesPlugin extends Plugin {
 	seek(time: number) {
 		if (this.soundscapeType === SOUNDSCAPE_TYPE.MY_MUSIC) {
 			this.localPlayer.currentTime = time;
+		} else {
+			var t= this.player?.getCurrentTime();
+			this.player?.seekTo(t+time);
 		}
 	}
 
@@ -723,8 +751,26 @@ export default class SoundscapesPlugin extends Plugin {
 	 * Once the player is ready, create the controls and play some music! (or not if autoplay is disabled)
 	 */
 	onPlayerReady() {
+		var self = this
 		this.createControls();
 		this.onSoundscapeChange(this.settings.autoplay);
+		setInterval(function() {
+			var progress = (self.player?.getCurrentTime()/self.player?.getDuration()).toFixed(5)
+			self.trackProgressSlider.value = (progress).toString()
+			self.progressDuration.setText(
+				(self.formatDate(self.player?.getCurrentTime())+" / "+self.formatDate(self.player?.getDuration()))
+			)
+		}, 10);
+	}
+
+	formatDate(duration: number){
+		if(duration < 3600){
+			return new Date(duration*1000).toISOString().substring(14, 19)
+		}else if(duration <3600*24){
+			return new Date(duration*1000).toISOString().substring(11, 19)
+		}else{
+			return Math.round(duration/(3600*24)) +":"+ new Date(duration*1000).toISOString().substring(11, 19)
+		}
 	}
 
 	/**
@@ -809,6 +855,14 @@ export default class SoundscapesPlugin extends Plugin {
 		this.debouncedSaveSettings();
 	}
 
+	onTrackProgressChange(e: any) {
+		const trackProgress = parseFloat(e.target.value);
+		this.trackProgressSlider.value = e.target.value;
+		this.player?.seekTo(this.player.getDuration()*(trackProgress));
+		this.settings.trackProgress = trackProgress;
+		this.settingsObservable.setValue(this.settings);
+		this.debouncedSaveSettings();
+	}
 	/**
 	 * Play the selected soundscape!
 	 *

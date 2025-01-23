@@ -28,6 +28,7 @@ export interface Player {
 	getDuration(): number;
 	setVolume(volume: Number): void;
 	loadVideoById(options: { videoId: String | undefined }): void;
+	getCurrentTime():number;
 }
 
 export interface LocalMusicFile {
